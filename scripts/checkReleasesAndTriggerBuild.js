@@ -40,10 +40,10 @@ async function main() {
     for (const release of newReleases) {
         await octokit.actions.createWorkflowDispatch({
             owner: "lamba92",
-            repo: "level-db-builds",
+            repo: "leveldb-builds",
             workflow_id: "build.yml",
             ref: "master",
-            inputs: {"level-db-version": release}
+            inputs: {"leveldb-version": release}
         });
     }
 }

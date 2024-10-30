@@ -3,7 +3,7 @@ name: Build LevelDB
 on:
   workflow_dispatch:
     inputs:
-      level-db-version:
+      leveldb-version:
         description: "LevelDB version"
         required: true
 
