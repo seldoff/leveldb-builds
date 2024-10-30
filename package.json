@@ -1,0 +1,13 @@
+{
+  "name": "level-db-builds",
+  "version": "1.0.0",
+  "description": "Scripts for GitHub Actions workflows",
+  "main": "scripts/checkReleasesAndTriggerBuild.js",
+  "type": "module",
+  "dependencies": {
+    "@octokit/rest": "^19.0.0",
+    "semver": "^7.6.3"
+  },
+  "author": "basti.lamberto@gmail.com",
+  "license": "Apache-2.0"
+}

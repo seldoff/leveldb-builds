@@ -1,0 +1,24 @@
+name: Check Releases and Trigger Build
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Runs every hour
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  check-releases:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.11.0
+      - run: npm install
+      - name: Run checkReleasesAndTriggerBuild.js
+        run: node scripts/checkReleasesAndTriggerBuild.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
