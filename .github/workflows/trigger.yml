@@ -1,4 +1,4 @@
-name: Check Releases and Trigger Build
+name: Check for new releases and trigger build
 
 on:
   schedule:
