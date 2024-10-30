@@ -396,7 +396,7 @@ jobs:
         with:
           files: |
             */*
-            libleveldb-1.23-all.zip
+            libleveldb-*.zip
           name: ${{ github.event.inputs.leveldb-version }}
           tag_name: ${{ github.event.inputs.leveldb-version }}
           draft: false
