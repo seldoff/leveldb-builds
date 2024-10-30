@@ -391,7 +391,6 @@ jobs:
           done
           (cd "$temp_dir" && zip -r $output_zip .)
           rm -rf "$temp_dir"
-      - run: tree
       - uses: softprops/action-gh-release@v2
         with:
           files: |
