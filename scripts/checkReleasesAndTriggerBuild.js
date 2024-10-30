@@ -18,7 +18,7 @@ async function main() {
     const googleReleases = await octokit.paginate("GET /repos/google/leveldb/releases");
     const googleTags = googleReleases.map(release => release.tag_name);
 
-    const lambaReleases = await octokit.paginate("GET /repos/lamba92/level-db-builds/releases");
+    const lambaReleases = await octokit.paginate("GET /repos/lamba92/leveldb-builds/releases");
     const lambaTags = new Set(lambaReleases.map(release => release.tag_name));
     console.log("Already built releases:", lambaTags);
 
