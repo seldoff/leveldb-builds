@@ -64,6 +64,8 @@ jobs:
           repository: 'google/leveldb'
           ref: ${{ github.event.inputs.leveldb-version }}
           submodules: true
+
+      # Linux x64
       - name: Build x64
         # using $(which cmake) otherwise it will error. ¯\_(ツ)_/¯
         run: |
@@ -77,6 +79,7 @@ jobs:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-linux-x64.so
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-linux-x64.so
 
+      # Linux ARM64
       - name: Install arm64 cross-compilation tools
         run: sudo apt-get install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
       - name: Build arm64
@@ -95,6 +98,7 @@ jobs:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-linux-arm64.so
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-linux-arm64.so
 
+      # Linux ARMv7-a
       - name: Install armv7-a cross-compilation tools
         run: sudo apt-get install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
       - name: Create toolchain file
@@ -140,6 +144,8 @@ jobs:
           set(CMAKE_ANDROID_STL_TYPE c++_shared)
           EOF
 
+
+      # Android ARM64
       - name: Build Android ARM64
         run: |
           mkdir build-android-arm64 && cd build-android-arm64 && \
@@ -154,6 +160,7 @@ jobs:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-android-arm64.so
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-android-arm64.so
 
+      # Android ARMv7
       - name: Build Android ARMv7
         run: |
           mkdir build-android-armv7 && cd build-android-armv7 && \
@@ -168,6 +175,7 @@ jobs:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-android-armv7.so
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-android-armv7.so
 
+      # Android x86
       - name: Build Android x86
         run: |
           mkdir build-android-x86 && cd build-android-x86 && \
@@ -182,10 +190,11 @@ jobs:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-android-x86.so
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-android-x86.so
 
+      # Android x86_64
       - name: Build Android x86_64
         run: |
-          mkdir build-android-x86_64 && cd build-android-x86_64 && -DCMAKE_BUILD_TYPE=Release \
-          cmake -DCMAKE_TOOLCHAIN_FILE=../android.cmake \
+          mkdir build-android-x86_64 && cd build-android-x86_64 \
+          cmake -DCMAKE_TOOLCHAIN_FILE=../android.cmake -DCMAKE_BUILD_TYPE=Release \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
           -DCMAKE_ANDROID_ARCH_ABI=x86_64 \
           -DBUILD_SHARED_LIBS=ON .. && \
@@ -359,7 +368,6 @@ jobs:
         with:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-tvos-simulator-x64.dylib
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-tvos-simulator-x64.dylib
-
 
   publish-release-with-files:
     name: Create Publication
