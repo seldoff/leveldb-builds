@@ -43,7 +43,11 @@ async function main() {
             repo: "leveldb-builds",
             workflow_id: "build.yml",
             ref: "master",
-            inputs: {"leveldb-version": release}
+            inputs: {
+                "leveldb-version": release,
+                "enable-windows": true,
+                "debug": false
+            }
         });
     }
 }
