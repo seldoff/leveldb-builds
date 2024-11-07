@@ -13,7 +13,7 @@ async function main() {
         workflow_id: "build.yml",
         ref: "master",
         inputs: {
-            "leveldb-ref": "master",
+            "leveldb-ref": "main",
             "enable-windows": "true",
             "debug": "false",
             "version-name": `weekly-${now.getFullYear()}-${currentMonth}-${dayOfMonth}`
