@@ -254,7 +254,6 @@ jobs:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-android-shared-arm64.so
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-android-shared-arm64.so
 
-
       # Android ARM64 static
       - name: Build Android ARM64 static
         run: |
@@ -414,6 +413,20 @@ jobs:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-macos-shared-x64.dylib
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-macos-shared-x64.dylib
 
+      # macOS x64 static
+      - name: macOs x64 static
+        run: |
+          mkdir build-macos-static-x64 && cd build-macos-static-x64 && \
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 \
+          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
+          -DBUILD_SHARED_LIBS=OFF -DCMAKE_SYSTEM_NAME=Darwin .. && \
+          cmake --build . -j8
+      - run: cp -L build-macos-static-x64/libleveldb.a libleveldb-${{ github.event.inputs.leveldb-version }}-macos-static-x64.a
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libleveldb-${{ github.event.inputs.leveldb-version }}-macos-static-x64.a
+          path: libleveldb-${{ github.event.inputs.leveldb-version }}-macos-static-x64.a
+
       # iOS arm64 shared
       - name: iOS arm64 shared
         run: |
@@ -428,6 +441,21 @@ jobs:
         with:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-ios-shared-arm64.dylib
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-ios-shared-arm64.dylib
+
+      # iOS arm64 static
+      - name: iOS arm64 static
+        run: |
+          mkdir build-ios-static-arm64 && cd build-ios-static-arm64 && \
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
+          -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphoneos \
+          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
+          -DBUILD_SHARED_LIBS=OFF .. && \
+          cmake --build . -j8
+      - run: cp -L build-ios-static-arm64/libleveldb.a libleveldb-${{ github.event.inputs.leveldb-version }}-ios-static-arm64.a
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libleveldb-${{ github.event.inputs.leveldb-version }}-ios-static-arm64.a
+          path: libleveldb-${{ github.event.inputs.leveldb-version }}-ios-static-arm64.a
 
       # iOS simulator arm64 shared
       - name: iOS simulator arm64 shared
@@ -444,8 +472,23 @@ jobs:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-ios-simulator-shared-arm64.dylib
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-ios-simulator-shared-arm64.dylib
 
+      # iOS simulator arm64 static
+      - name: iOS simulator arm64 static
+        run: |
+          mkdir build-ios-simulator-static-arm64 && cd build-ios-simulator-static-arm64 && \
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
+          -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphonesimulator \
+          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
+          -DBUILD_SHARED_LIBS=OFF .. && \
+          cmake --build . -j8
+      - run: cp -L build-ios-simulator-static-arm64/libleveldb.a libleveldb-${{ github.event.inputs.leveldb-version }}-ios-simulator-static-arm64.a
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libleveldb-${{ github.event.inputs.leveldb-version }}-ios-simulator-static-arm64.a
+          path: libleveldb-${{ github.event.inputs.leveldb-version }}-ios-simulator-static-arm64.a
+
       # iOS simulator x64 shared
-      - name: iOS simulator x64
+      - name: iOS simulator x64 shared
         run: |
           mkdir build-ios-simulator-shared-x64 && cd build-ios-simulator-shared-x64 && \
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 \
@@ -458,6 +501,21 @@ jobs:
         with:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-ios-simulator-shared-x64.dylib
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-ios-simulator-shared-x64.dylib
+
+      # iOS simulator x64 static
+      - name: iOS simulator x64 static
+        run: |
+          mkdir build-ios-simulator-static-x64 && cd build-ios-simulator-static-x64 && \
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 \
+          -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphonesimulator \
+          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
+          -DBUILD_SHARED_LIBS=ON .. && \
+          cmake --build . -j8
+      - run: cp -L build-ios-simulator-static-x64/libleveldb.a libleveldb-${{ github.event.inputs.leveldb-version }}-ios-simulator-static-x64.a
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libleveldb-${{ github.event.inputs.leveldb-version }}-ios-simulator-static-x64.a
+          path: libleveldb-${{ github.event.inputs.leveldb-version }}-ios-simulator-static-x64.a
 
       # watchOS arm64 shared
       - name: watchOs arm64 shared
@@ -474,6 +532,21 @@ jobs:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-watchos-shared-arm64.dylib
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-watchos-shared-arm64.dylib
 
+      # watchOS arm64 static
+      - name: watchOs arm64 static
+        run: |
+          mkdir build-watchos-static-arm64 && cd build-watchos-static-arm64 && \
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
+          -DCMAKE_SYSTEM_NAME=watchOS -DCMAKE_OSX_SYSROOT=watchos \
+          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
+          -DBUILD_SHARED_LIBS=OFF .. && \
+          cmake --build . -j8
+      - run: cp -L build-watchos-static-arm64/libleveldb.a libleveldb-${{ github.event.inputs.leveldb-version }}-watchos-static-arm64.a
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libleveldb-${{ github.event.inputs.leveldb-version }}-watchos-static-arm64.a
+          path: libleveldb-${{ github.event.inputs.leveldb-version }}-watchos-static-arm64.a
+
       # watchOS simulator arm64 shared
       - name: watchOs simulator arm64 shared
         run: |
@@ -489,7 +562,22 @@ jobs:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-watchos-simulator-shared-arm64.dylib
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-watchos-simulator-shared-arm64.dylib
 
-      # watchOS Simulator x64
+      # watchOS simulator arm64 static
+      - name: watchOs simulator arm64 static
+        run: |
+          mkdir build-watchos-simulator-static-arm64 && cd build-watchos-simulator-static-arm64 && \
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
+          -DCMAKE_SYSTEM_NAME=watchOS -DCMAKE_OSX_SYSROOT=watchsimulator \
+          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
+          -DBUILD_SHARED_LIBS=OFF .. && \
+          cmake --build . -j8\
+      - run: cp -L build-watchos-simulator-static-arm64/libleveldb.a libleveldb-${{ github.event.inputs.leveldb-version }}-watchos-simulator-static-arm64.a
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libleveldb-${{ github.event.inputs.leveldb-version }}-watchos-simulator-static-arm64.a
+          path: libleveldb-${{ github.event.inputs.leveldb-version }}-watchos-simulator-static-arm64.a
+
+      # watchOS Simulator x64 shared
       - name: watchOS simulator x64 shared
         run: |
           mkdir build-watchos-simulator-shared-x64 && cd build-watchos-simulator-shared-x64 && \
@@ -504,8 +592,23 @@ jobs:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-watchos-simulator-shared-x64.dylib
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-watchos-simulator-shared-x64.dylib
 
+      # watchOS Simulator x64 static
+      - name: watchOS simulator x64 static
+        run: |
+          mkdir build-watchos-simulator-static-x64 && cd build-watchos-simulator-static-x64 && \
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 \
+          -DCMAKE_SYSTEM_NAME=watchOS -DCMAKE_OSX_SYSROOT=watchsimulator \
+          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
+          -DBUILD_SHARED_LIBS=OFF .. && \
+          cmake --build . -j8
+      - run: cp -L build-watchos-simulator-static-x64/libleveldb.a libleveldb-${{ github.event.inputs.leveldb-version }}-watchos-simulator-static-x64.a
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libleveldb-${{ github.event.inputs.leveldb-version }}-watchos-simulator-static-x64.a
+          path: libleveldb-${{ github.event.inputs.leveldb-version }}-watchos-simulator-static-x64.a
+
       # tvOS arm64 shared
-      - name: tvOs arm64
+      - name: tvOs arm64 shared
         run: |
           mkdir build-tvos-shared-arm64 && cd build-tvos-shared-arm64 && \
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
@@ -519,8 +622,23 @@ jobs:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-tvos-shared-arm64.dylib
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-tvos-shared-arm64.dylib
 
+      # tvOS arm64 static
+      - name: tvOs arm64 static
+        run: |
+          mkdir build-tvos-static-arm64 && cd build-tvos-static-arm64 && \
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
+          -DCMAKE_SYSTEM_NAME=tvOS -DCMAKE_OSX_SYSROOT=appletvos \
+          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
+          -DBUILD_SHARED_LIBS=OFF .. && \
+          cmake --build . -j8
+      - run: cp -L build-tvos-static-arm64/libleveldb.a libleveldb-${{ github.event.inputs.leveldb-version }}-tvos-static-arm64.a
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libleveldb-${{ github.event.inputs.leveldb-version }}-tvos-static-arm64.a
+          path: libleveldb-${{ github.event.inputs.leveldb-version }}-tvos-static-arm64.a
+
       # tvOS simulator arm64 shared
-      - name: tvOs simulator arm64
+      - name: tvOs simulator arm64 shared
         run: |
           mkdir build-tvos-simulator-shared-arm64 && cd build-tvos-simulator-shared-arm64 && \
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
@@ -534,8 +652,23 @@ jobs:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-tvos-simulator-shared-arm64.dylib
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-tvos-simulator-shared-arm64.dylib
 
+      # tvOS simulator arm64 static
+      - name: tvOs simulator arm64 static
+        run: |
+          mkdir build-tvos-simulator-static-arm64 && cd build-tvos-simulator-static-arm64 && \
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
+          -DCMAKE_SYSTEM_NAME=tvOS -DCMAKE_OSX_SYSROOT=appletvsimulator \
+          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
+          -DBUILD_SHARED_LIBS=OFF .. && \
+          cmake --build . -j8
+      - run: cp -L build-tvos-simulator-static-arm64/libleveldb.a libleveldb-${{ github.event.inputs.leveldb-version }}-tvos-simulator-static-arm64.a
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libleveldb-${{ github.event.inputs.leveldb-version }}-tvos-simulator-static-arm64.a
+          path: libleveldb-${{ github.event.inputs.leveldb-version }}-tvos-simulator-static-arm64.a
+
       # tvOS simulator x64 shared
-      - name: tvOS simulator x64
+      - name: tvOS simulator x64 shared
         run: |
           mkdir build-tvos-simulator-shared-x64 && cd build-tvos-simulator-shared-x64 && \
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 \
@@ -548,6 +681,21 @@ jobs:
         with:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-tvos-simulator-shared-x64.dylib
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-tvos-simulator-shared-x64.dylib
+
+      # tvOS simulator x64 static
+      - name: tvOS simulator x64 static
+        run: |
+          mkdir build-tvos-simulator-static-x64 && cd build-tvos-simulator-static-x64 && \
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 \
+          -DCMAKE_SYSTEM_NAME=tvOS -DCMAKE_OSX_SYSROOT=appletvsimulator \
+          -DLEVELDB_BUILD_TESTS=off -DLEVELDB_BUILD_BENCHMARKS=OFF \
+          -DBUILD_SHARED_LIBS=ON .. && \
+          cmake --build . -j8
+      - run: cp -L build-tvos-simulator-static-x64/libleveldb.a libleveldb-${{ github.event.inputs.leveldb-version }}-tvos-simulator-static-x64.a
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libleveldb-${{ github.event.inputs.leveldb-version }}-tvos-simulator-static-x64.a
+          path: libleveldb-${{ github.event.inputs.leveldb-version }}-tvos-simulator-static-x64.a
 
   publish-release-with-files:
     name: Create Publication
