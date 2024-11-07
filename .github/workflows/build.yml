@@ -35,9 +35,6 @@ jobs:
           choco install cmake --installargs '"ADD_CMAKE_TO_PATH=System"'
           choco install visualstudio2022buildtools --package-parameters "--allWorkloads"
 
-
-
-
       # Windows x64 shared
       - name: Configure shared for Windows x64
         run: |

@@ -45,8 +45,8 @@ async function main() {
             ref: "master",
             inputs: {
                 "leveldb-version": release,
-                "enable-windows": true,
-                "debug": false
+                "enable-windows": "true",
+                "debug": "false"
             }
         });
     }
