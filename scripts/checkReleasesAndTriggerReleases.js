@@ -44,9 +44,10 @@ async function main() {
             workflow_id: "build.yml",
             ref: "master",
             inputs: {
-                "leveldb-version": release,
+                "leveldb-ref": release,
                 "enable-windows": "true",
-                "debug": "false"
+                "debug": "false",
+                "version-name": release
             }
         });
     }

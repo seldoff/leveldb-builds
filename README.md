@@ -19,6 +19,6 @@ NOTHING HAS YET BEEN TESTED!
 
 # How it works
 
-A [trigger.yml](.github/workflows/trigger.yml) checks hourly for new releases of [google/leveldb](https://github.com/google/leveldb)
+A [trigger.yml](.github/workflows/trigger-releases.yml) checks hourly for new releases of [google/leveldb](https://github.com/google/leveldb)
 and triggers the [build.yml](.github/workflows/build.yml) workflow for each new release from Google and creates a
 new release with the pre-built binaries.

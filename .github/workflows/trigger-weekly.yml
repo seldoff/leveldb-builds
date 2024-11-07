@@ -1,8 +1,8 @@
-name: Check for new releases and trigger build
+name: Trigger weekly build
 
 on:
   schedule:
-    - cron: '0 * * * *' # Runs every hour
+    - cron: '0 9 * * 1'
   workflow_dispatch:
 
 permissions:
@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: 22.11.0
       - run: npm install
-      - name: Run checkReleasesAndTriggerBuild.js
-        run: node scripts/checkReleasesAndTriggerBuild.js
+      - name: Run triggerWeekly.js
+        run: node scripts/triggerWeekly.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
