@@ -509,7 +509,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 \
           -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphonesimulator \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=ON .. && \
+          -DBUILD_SHARED_LIBS=OFF .. && \
           cmake --build . -j8
       - run: cp -L build-ios-simulator-static-x64/libleveldb.a libleveldb-${{ github.event.inputs.leveldb-version }}-ios-simulator-static-x64.a
       - uses: actions/upload-artifact@v4
