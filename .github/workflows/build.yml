@@ -37,6 +37,7 @@ jobs:
 
 
 
+
       # Windows x64 shared
       - name: Configure shared for Windows x64
         run: |
@@ -68,8 +69,8 @@ jobs:
       - run: Compress-Archive -Path "build-static-x64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.leveldb-version }}-windows-static-x64.zip"
       - uses: actions/upload-artifact@v4
         with:
-          name: libleveldb-${{ github.event.inputs.leveldb-version }}-windows-x64.zip
-          path: libleveldb-${{ github.event.inputs.leveldb-version }}-windows-x64.zip
+          name: libleveldb-${{ github.event.inputs.leveldb-version }}-windows-static-x64.zip
+          path: libleveldb-${{ github.event.inputs.leveldb-version }}-windows-static-x64.zip
 
       # Windows ARM64 shared
       - name: Configure shared for Windows ARM64
@@ -86,7 +87,6 @@ jobs:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-windows-shared-arm64.zip
           path: libleveldb-${{ github.event.inputs.leveldb-version }}-windows-shared-arm64.zip
 
-
       # Windows ARM64 static
       - name: Configure static for Windows ARM64
         run: |
@@ -96,7 +96,7 @@ jobs:
             -DBUILD_SHARED_LIBS=OFF ..
       - name: Build LevelDB for Windows ARM64
         run: cmake --build build-static-arm64 --config Release -j8
-      - run: Compress-Archive -Path "build-shared-arm64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.leveldb-version }}-windows-static-arm64.zip"
+      - run: Compress-Archive -Path "build-static-arm64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.leveldb-version }}-windows-static-arm64.zip"
       - uses: actions/upload-artifact@v4
         with:
           name: libleveldb-${{ github.event.inputs.leveldb-version }}-windows-static-arm64.zip
