@@ -9,11 +9,11 @@ on:
       windows-enable:
         description: "Enable Windows build"
         required: false
-        default: true
+        default: false
       debug:
         description: "Debug mode"
         required: false
-        default: false
+        default: true
 
 permissions:
   contents: write
