@@ -13,7 +13,7 @@ Check the releases for the pre-built binaries.
 - watchOS: arm64, arm64-simulator, x64-simulator
 - tvOS: arm64, arm64-simulator, x64-simulator
 
-Libraries are built as dynamic libraries (`.dll`, `.so`, `.dylib`).
+Libraries are built as dynamic libraries (`.dll`+`.lib`, `.so`, `.dylib`) and static libraries (`.lib`, `.a`).
 
 NOTHING HAS YET BEEN TESTED!
 
