@@ -83,44 +83,6 @@ jobs:
           name: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.a
           path: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.a
 
-      # Windows ARM64 shared
-      - name: Configure shared for Windows ARM64
-        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
-        run: |
-          mkdir build-shared-arm64 && cd build-shared-arm64
-          cmake -G "MinGW Makefiles" -A ARM64 `
-            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-            -DBUILD_SHARED_LIBS=ON -DCMAKE_C_COMPILER=gcc-9 -DCMAKE_CXX_COMPILER=g++-9 ..
-      - name: Build LevelDB for Windows ARM64
-        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
-        run: cmake --build build-shared-arm64 --config Release -j8
-      - run: Compress-Archive -Path "build-shared-arm64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-shared-arm64.zip"
-        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
-      - uses: actions/upload-artifact@v4
-        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
-        with:
-          name: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-arm64.zip
-          path: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-arm64.zip
-
-      # Windows ARM64 static
-      - name: Configure static for Windows ARM64
-        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
-        run: |
-          mkdir build-static-arm64 && cd build-static-arm64
-          cmake -G "MinGW Makefiles" -A ARM64 `
-            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-            -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_COMPILER=gcc-9 -DCMAKE_CXX_COMPILER=g++-9 ..
-      - name: Build LevelDB for Windows ARM64
-        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
-        run: cmake --build build-static-arm64 --config Release -j8
-      - run: Compress-Archive -Path "build-static-arm64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.zip"
-        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
-      - uses: actions/upload-artifact@v4
-        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
-        with:
-          name: libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.zip
-          path: libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.zip
-
   linux:
     name: Linux
     runs-on: ubuntu-latest
