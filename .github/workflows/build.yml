@@ -210,6 +210,15 @@ jobs:
           set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
           set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
           EOF
+      - name: Build shared armv7-a
+        run: |
+          mkdir build-shared-armv7-a && cd build-shared-armv7-a && \
+          cmake -DCMAKE_TOOLCHAIN_FILE=../armv7-a.cmake -DCMAKE_BUILD_TYPE=Release \
+          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
+          -DBUILD_SHARED_LIBS=ON \
+          -DCMAKE_CXX_FLAGS="-Wno-psabi" \
+          -DCMAKE_C_FLAGS="-Wno-psabi" .. && \
+          cmake --build . -j8
       - run: cp -L build-shared-armv7-a/libleveldb.so libleveldb-${{ github.event.inputs.version-name }}-linux-shared-armv7-a.so
       - uses: actions/upload-artifact@v4
         with:
