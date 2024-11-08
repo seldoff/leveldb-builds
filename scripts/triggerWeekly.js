@@ -14,7 +14,6 @@ async function main() {
         ref: "master",
         inputs: {
             "leveldb-ref": "main",
-            "enable-windows": "true",
             "debug": "false",
             "version-name": `weekly-${now.getFullYear()}-${currentMonth}-${dayOfMonth}`
         }

@@ -45,7 +45,6 @@ async function main() {
             ref: "master",
             inputs: {
                 "leveldb-ref": release,
-                "enable-windows": "true",
                 "debug": "false",
                 "version-name": release
             }
