@@ -26,6 +26,7 @@ jobs:
     env:
       PATH: "C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\bin;${{ github.env.PATH }}"
     steps:
+      - run: echo %PATH%
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
