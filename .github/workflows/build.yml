@@ -6,9 +6,11 @@ on:
       version-name:
         description: "Version name"
         required: true
+        default: 1.23
       leveldb-ref:
         description: "LevelDB git ref to build"
         required: true
+        default: main
       debug:
         description: "Debug mode"
         required: true
