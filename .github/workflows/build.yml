@@ -50,8 +50,6 @@ jobs:
             -DCMAKE_C_COMPILER=C:\ProgramData\Chocolatey\bin\gcc.exe ..
       - name: Build shared for Windows x64
         run: cmake --build build-shared-x64 --config Release -j8
-      - run: tree /F build-static-x64
-        if: ${{ github.event.inputs.debug == 'true' }}
       - run: Compress-Archive -Path build-shared-x64\*.dll, build-shared-x64\*.dll.a -DestinationPath libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip
       - uses: actions/upload-artifact@v4
         with:
@@ -68,8 +66,6 @@ jobs:
             -DCMAKE_C_COMPILER=C:\ProgramData\Chocolatey\bin\gcc.exe ..
       - name: Build static for Windows x64
         run: cmake --build build-static-x64 --config Release -j8
-      - run: tree /F build-static-x64
-        if: ${{ github.event.inputs.debug == 'true' }}
       - run: Move-Item -Path ".\build-static-x64\libleveldb.a" -Destination "libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.a"
       - uses: actions/upload-artifact@v4
         with:
@@ -719,8 +715,6 @@ jobs:
           done
           (cd "$temp_dir" && zip -r $output_zip .)
           rm -rf "$temp_dir"
-      - run: tree
-        if: ${{ github.event.inputs.debug == 'true' }}
       - uses: softprops/action-gh-release@v2
         if: ${{ github.event.inputs.debug == 'false' }}
         with:
