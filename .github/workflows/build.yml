@@ -27,7 +27,7 @@ jobs:
     steps:
       # add C:\tools\mingw64\bin and C:\ProgramData\chocolatey\lib\mingw\tools\install\bin to PATH
       - run: |
-          $env:Path += ";C:\tools\mingw64\bin;C:\ProgramData\chocolatey\lib\mingw\tools\install\bin"
+          $env:Path = "C:\tools\mingw64\bin;C:\ProgramData\chocolatey\lib\mingw\tools\install\bin;$env:Path"
           echo $env:Path
       - uses: actions/checkout@v4
         with:
