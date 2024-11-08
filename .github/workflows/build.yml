@@ -47,6 +47,13 @@ jobs:
         run: cmake --build build-shared-x64 --config Release -j8
       - run: tree
         if: ${{ github.event.inputs.debug == 'true' }}
+      - run: Compress-Archive -Path "build-shared-x64/*" -DestinationPath "debug-windows-shared-x64.zip"
+        if: ${{ github.event.inputs.debug == 'true' }}
+      - uses: actions/upload-artifact@v4
+        if: ${{ github.event.inputs.debug == 'true' }}
+        with:
+          name: debug-windows-shared-x64.zip
+          path: debug-windows-shared-x64.zip
       - run: Compress-Archive -Path "build-shared-x64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip"
       - uses: actions/upload-artifact@v4
         with:
