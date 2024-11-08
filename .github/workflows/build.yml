@@ -54,7 +54,7 @@ jobs:
       - name: Configure static for Windows x64
         run: |
           mkdir build-static-x64 && cd build-static-x64
-          cmake -G "MinGW Makefiles" -A x64 `
+          cmake -G "MinGW Makefiles" `
             -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
             -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_COMPILER=gcc-9 -DCMAKE_CXX_COMPILER=g++-9 ..
       - name: Build static for Windows x64
