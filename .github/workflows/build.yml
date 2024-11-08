@@ -13,6 +13,10 @@ on:
         description: "Enable Windows build"
         required: true
         default: false
+      enable-windows-arm64:
+        description: "Enable Windows arm64 build"
+        required: false
+        default: false
       debug:
         description: "Debug mode"
         required: true
@@ -22,85 +26,97 @@ permissions:
   contents: write
 
 jobs:
-  windows:
-    if: ${{ github.event.inputs.enable-windows == 'true' }}
-    name: Windows
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          repository: 'google/leveldb'
-          ref: ${{ github.event.inputs.leveldb-ref }}
-          submodules: true
-      - name: Install dependencies with Chocolatey
-        run: |
-          choco install cmake --installargs '"ADD_CMAKE_TO_PATH=System"'
-          choco install visualstudio2022buildtools --package-parameters "--allWorkloads"
-
-      # Windows x64 shared
-      - name: Configure shared for Windows x64
-        run: |
-          mkdir build-shared-x64 && cd build-shared-x64
-          cmake -G "Visual Studio 17 2022" -A x64 `
-            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-            -DBUILD_SHARED_LIBS=ON -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" ..
-      - name: Build shared for Windows x64
-        run: cmake --build build-shared-x64 --config Release -j8
-      - run: tree
-        if: ${{ github.event.inputs.debug == 'true' }}
-      - run: Compress-Archive -Path "build-shared-x64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip
-          path: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip
-
-      # Windows x64 static
-      - name: Configure static for Windows x64
-        run: |
-          mkdir build-static-x64 && cd build-static-x64
-          cmake -G "Visual Studio 17 2022" -A x64 `
-            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-            -DBUILD_SHARED_LIBS=OFF -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" ..
-      - name: Build static for Windows x64
-        run: cmake --build build-static-x64 --config Release -j8
-      - run: tree
-        if: ${{ github.event.inputs.debug == 'true' }}
-      - run: Compress-Archive -Path "build-static-x64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.zip"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.zip
-          path: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.zip
-
-      # Windows ARM64 shared
-      - name: Configure shared for Windows ARM64
-        run: |
-          mkdir build-shared-arm64 && cd build-shared-arm64
-          cmake -G "Visual Studio 17 2022" -A ARM64 `
-            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-            -DBUILD_SHARED_LIBS=ON -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" ..
-      - name: Build LevelDB for Windows ARM64
-        run: cmake --build build-shared-arm64 --config Release -j8
-      - run: Compress-Archive -Path "build-shared-arm64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-shared-arm64.zip"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-arm64.zip
-          path: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-arm64.zip
-
-      # Windows ARM64 static
-      - name: Configure static for Windows ARM64
-        run: |
-          mkdir build-static-arm64 && cd build-static-arm64
-          cmake -G "Visual Studio 17 2022" -A ARM64 `
-            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-            -DBUILD_SHARED_LIBS=OFF -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" ..
-      - name: Build LevelDB for Windows ARM64
-        run: cmake --build build-static-arm64 --config Release -j8
-      - run: Compress-Archive -Path "build-static-arm64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.zip"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.zip
-          path: libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.zip
+#  windows:
+#    if: ${{ github.event.inputs.enable-windows == 'true' }}
+#    name: Windows
+#    runs-on: windows-latest
+#    env:
+#      CC: gcc
+#      CXX: g++
+#      PATH: C:\tools\mingw64\bin;%PATH%
+#    steps:
+#      - uses: actions/checkout@v4
+#        with:
+#          fetch-depth: 0
+#          repository: 'google/leveldb'
+#          ref: ${{ github.event.inputs.leveldb-ref }}
+#          submodules: true
+#      - name: Install dependencies with Chocolatey
+#        run: |
+#          choco install cmake --installargs '"ADD_CMAKE_TO_PATH=System"'
+#          choco install mingw -y
+#
+#      # Windows x64 shared
+#      - name: Configure shared for Windows x64
+#        run: |
+#          mkdir build-shared-x64 && cd build-shared-x64
+#          cmake -G "MinGW Makefiles"`
+#            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
+#            -DBUILD_SHARED_LIBS=ON ..
+#      - name: Build shared for Windows x64
+#        run: cmake --build build-shared-x64 --config Release -j8
+#      - run: tree
+#        if: ${{ github.event.inputs.debug == 'true' }}
+#      - run: Compress-Archive -Path "build-shared-x64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip"
+#      - uses: actions/upload-artifact@v4
+#        with:
+#          name: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip
+#          path: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip
+#
+#      # Windows x64 static
+#      - name: Configure static for Windows x64
+#        run: |
+#          mkdir build-static-x64 && cd build-static-x64
+#          cmake -G "MinGW Makefiles" -A x64 `
+#            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
+#            -DBUILD_SHARED_LIBS=OFF -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" ..
+#      - name: Build static for Windows x64
+#        run: cmake --build build-static-x64 --config Release -j8
+#      - run: tree
+#        if: ${{ github.event.inputs.debug == 'true' }}
+#      - run: Compress-Archive -Path "build-static-x64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.zip"
+#      - uses: actions/upload-artifact@v4
+#        with:
+#          name: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.zip
+#          path: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.zip
+#
+#      # Windows ARM64 shared
+#      - name: Configure shared for Windows ARM64
+#        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
+#        run: |
+#          mkdir build-shared-arm64 && cd build-shared-arm64
+#          cmake -G "MinGW Makefiles" -A ARM64 `
+#            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
+#            -DBUILD_SHARED_LIBS=ON -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" ..
+#      - name: Build LevelDB for Windows ARM64
+#        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
+#        run: cmake --build build-shared-arm64 --config Release -j8
+#      - run: Compress-Archive -Path "build-shared-arm64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-shared-arm64.zip"
+#        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
+#      - uses: actions/upload-artifact@v4
+#        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
+#        with:
+#          name: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-arm64.zip
+#          path: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-arm64.zip
+#
+#      # Windows ARM64 static
+#      - name: Configure static for Windows ARM64
+#        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
+#        run: |
+#          mkdir build-static-arm64 && cd build-static-arm64
+#          cmake -G "MinGW Makefiles" -A ARM64 `
+#            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
+#            -DBUILD_SHARED_LIBS=OFF -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" ..
+#      - name: Build LevelDB for Windows ARM64
+#        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
+#        run: cmake --build build-static-arm64 --config Release -j8
+#      - run: Compress-Archive -Path "build-static-arm64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.zip"
+#        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
+#      - uses: actions/upload-artifact@v4
+#        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
+#        with:
+#          name: libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.zip
+#          path: libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.zip
 
   linux:
     name: Linux
@@ -112,6 +128,42 @@ jobs:
           repository: 'google/leveldb'
           ref: ${{ github.event.inputs.leveldb-ref }}
           submodules: true
+      - run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+      - run: sudo apt install gcc-9 g++-9 gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu cmake \
+          gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf gcc-9-mingw-w64-x86-64 \
+          g++-9-mingw-w64-x86-64  gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu -y
+
+      # Windows x64 shared
+      - name: Build Windows shared x64
+        run: |
+          mkdir build-windows-shared-x64 && cd build-windows-shared-x64 && \
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
+          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
+          -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc-9 -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++-9 .. && \
+          cmake --build . -j8
+      - run: tree
+        if: ${{ github.event.inputs.debug == 'true' }}
+      - run: cp -L build-windows-shared-x64/libleveldb.lib libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.lib
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.lib
+          path: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.lib
+
+      # Windows x64 static
+      - name: Build Windows static x64
+        run: |
+          mkdir build-windows-static-x64 && cd build-windows-static-x64 && \
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
+          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
+          -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc-9 -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++-9 .. && \
+          cmake --build . -j8
+      - run: tree
+        if: ${{ github.event.inputs.debug == 'true' }}
+      - run: cp -L build-windows-static-x64/libleveldb.lib libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.lib
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.lib
+          path: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.lib
 
       # Linux x64 shared
       - name: Build shared x64
@@ -120,8 +172,8 @@ jobs:
           mkdir build-shared-x64 && cd build-shared-x64 && \
           cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" .. && \
-          $(which cmake) --build . -j8
+          -DCMAKE_C_COMPILER=gcc-9 -DCMAKE_CXX_COMPILER=g++-9 .. && \
+          cmake --build . -j8
       - run: cp -L build-shared-x64/libleveldb.so libleveldb-${{ github.event.inputs.version-name }}-linux-shared-x64.so
       - uses: actions/upload-artifact@v4
         with:
@@ -134,7 +186,7 @@ jobs:
           mkdir build-static-x64 && cd build-static-x64 && \
           cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" .. && \
+          -DCMAKE_C_COMPILER=gcc-9 -DCMAKE_CXX_COMPILER=g++-9 .. && \
           $(which cmake) --build . -j8
       - run: cp -L build-static-x64/libleveldb.a libleveldb-${{ github.event.inputs.version-name }}-linux-static-x64.a
       - uses: actions/upload-artifact@v4
@@ -148,10 +200,10 @@ jobs:
       - name: Build shared arm64
         run: |
           mkdir build-static-arm64 && cd build-static-arm64 && \
-          cmake -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_BUILD_TYPE=Release \
+          cmake -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_SYSTEM_PROCESSOR=aarch64 \
-          -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
-          -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ \
+          -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc-9 \
+          -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++-9 \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
           -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" \
           -DBUILD_SHARED_LIBS=ON .. && \
@@ -168,8 +220,8 @@ jobs:
           mkdir build-shared-arm64 && cd build-shared-arm64 && \
           cmake -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_SYSTEM_PROCESSOR=aarch64 \
-          -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
-          -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ \
+          -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc-9 \
+          -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++-9 \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
           -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" \
           -DBUILD_SHARED_LIBS=OFF .. && \
@@ -180,17 +232,14 @@ jobs:
           name: libleveldb-${{ github.event.inputs.version-name }}-linux-static-arm64.a
           path: libleveldb-${{ github.event.inputs.version-name }}-linux-static-arm64.a
 
-      # Linux ARMv7-a shared
-      - name: Install armv7-a cross-compilation tools
-        run: sudo apt-get install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
       - name: Create toolchain file
         run: |
           cat <<EOF > armv7-a.cmake
           set(CMAKE_SYSTEM_NAME Linux)
           set(CMAKE_SYSTEM_VERSION 1)
           # Specify the cross compiler
-          set(CMAKE_C_COMPILER arm-linux-gnueabihf-gcc)
-          set(CMAKE_CXX_COMPILER arm-linux-gnueabihf-g++)
+          set(CMAKE_C_COMPILER arm-linux-gnueabihf-gcc-9)
+          set(CMAKE_CXX_COMPILER arm-linux-gnueabihf-g++-9)
           set(CMAKE_LINKER arm-linux-gnueabihf-ld)
           set(CMAKE_STRIP arm-linux-gnueabihf-strip)
           # Where is the target environment
@@ -201,17 +250,6 @@ jobs:
           set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
           set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
           EOF
-      - name: Build shared armv7-a
-        run: |
-          mkdir build-shared-armv7-a && cd build-shared-armv7-a && \
-          cmake -DCMAKE_TOOLCHAIN_FILE=../armv7-a.cmake -DCMAKE_BUILD_TYPE=Release \
-          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=ON \
-          -DCMAKE_CXX_STANDARD=11 \
-          -DCMAKE_CXX_FLAGS="-std=c++11 -Wno-psabi" \
-          -DCMAKE_C_FLAGS="-Wno-psabi" \
-          -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" .. && \
-          cmake --build . -j8
       - run: cp -L build-shared-armv7-a/libleveldb.so libleveldb-${{ github.event.inputs.version-name }}-linux-shared-armv7-a.so
       - uses: actions/upload-artifact@v4
         with:
@@ -225,10 +263,8 @@ jobs:
           cmake -DCMAKE_TOOLCHAIN_FILE=../armv7-a.cmake -DCMAKE_BUILD_TYPE=Release \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
           -DBUILD_SHARED_LIBS=OFF \
-          -DCMAKE_CXX_STANDARD=11 \
-          -DCMAKE_CXX_FLAGS="-std=c++11 -Wno-psabi" \
-          -DCMAKE_C_FLAGS="-Wno-psabi" \
-          -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" .. && \
+          -DCMAKE_CXX_FLAGS="-Wno-psabi" \
+          -DCMAKE_C_FLAGS="-Wno-psabi" .. && \
           cmake --build . -j8
       - run: cp -L build-static-armv7-a/libleveldb.a libleveldb-${{ github.event.inputs.version-name }}-linux-static-armv7-a.a
       - uses: actions/upload-artifact@v4
@@ -252,8 +288,7 @@ jobs:
           cmake -DCMAKE_TOOLCHAIN_FILE=../android.cmake -DCMAKE_BUILD_TYPE=Release \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
           -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a \
-          -DBUILD_SHARED_LIBS=ON \
-          -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" .. && \
+          -DBUILD_SHARED_LIBS=ON .. && \
           cmake --build . -j8
       - run: cp -L build-shared-android-arm64/libleveldb.so libleveldb-${{ github.event.inputs.version-name }}-android-shared-arm64.so
       - uses: actions/upload-artifact@v4
@@ -268,8 +303,7 @@ jobs:
           cmake -DCMAKE_TOOLCHAIN_FILE=../android.cmake -DCMAKE_BUILD_TYPE=Release \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
           -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" .. && \
+          -DBUILD_SHARED_LIBS=OFF .. && \
           cmake --build . -j8
       - run: cp -L build-static-android-arm64/libleveldb.a libleveldb-${{ github.event.inputs.version-name }}-android-static-arm64.a
       - uses: actions/upload-artifact@v4
@@ -284,8 +318,7 @@ jobs:
           cmake -DCMAKE_TOOLCHAIN_FILE=../android.cmake -DCMAKE_BUILD_TYPE=Release \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
           -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
-          -DBUILD_SHARED_LIBS=ON \
-          -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" .. && \
+          -DBUILD_SHARED_LIBS=ON .. && \
           cmake --build . -j8
       - run: cp -L build-shared-android-armv7/libleveldb.so libleveldb-${{ github.event.inputs.version-name }}-android-shared-armv7.so
       - uses: actions/upload-artifact@v4
@@ -300,8 +333,7 @@ jobs:
           cmake -DCMAKE_TOOLCHAIN_FILE=../android.cmake -DCMAKE_BUILD_TYPE=Release \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
           -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" .. && \
+          -DBUILD_SHARED_LIBS=OFF .. && \
           cmake --build . -j8
       - run: cp -L build-static-android-armv7/libleveldb.a libleveldb-${{ github.event.inputs.version-name }}-android-static-armv7.a
       - uses: actions/upload-artifact@v4
@@ -316,8 +348,7 @@ jobs:
           cmake -DCMAKE_TOOLCHAIN_FILE=../android.cmake -DCMAKE_BUILD_TYPE=Release \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
           -DCMAKE_ANDROID_ARCH_ABI=x86 \
-          -DBUILD_SHARED_LIBS=ON \
-          -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" .. && \
+          -DBUILD_SHARED_LIBS=ON .. && \
           cmake --build . -j8
       - run: cp -L build-shared-android-x86/libleveldb.so libleveldb-${{ github.event.inputs.version-name }}-android-shared-x86.so
       - uses: actions/upload-artifact@v4
@@ -332,8 +363,7 @@ jobs:
           cmake -DCMAKE_TOOLCHAIN_FILE=../android.cmake -DCMAKE_BUILD_TYPE=Release \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
           -DCMAKE_ANDROID_ARCH_ABI=x86 \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" .. && \
+          -DBUILD_SHARED_LIBS=OFF .. && \
           cmake --build . -j8
       - run: cp -L build-static-android-x86/libleveldb.a libleveldb-${{ github.event.inputs.version-name }}-android-static-x86.a
       - uses: actions/upload-artifact@v4
@@ -348,8 +378,7 @@ jobs:
           cmake -DCMAKE_TOOLCHAIN_FILE=../android.cmake -DCMAKE_BUILD_TYPE=Release \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
           -DCMAKE_ANDROID_ARCH_ABI=x86_64 \
-          -DBUILD_SHARED_LIBS=ON \
-          -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" .. && \
+          -DBUILD_SHARED_LIBS=ON .. && \
           cmake --build . -j8
       - run: cp -L build-shared-android-x86_64/libleveldb.so libleveldb-${{ github.event.inputs.version-name }}-android-shared-x86_64.so
       - uses: actions/upload-artifact@v4
@@ -364,8 +393,7 @@ jobs:
           cmake -DCMAKE_TOOLCHAIN_FILE=../android.cmake -DCMAKE_BUILD_TYPE=Release \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
           -DCMAKE_ANDROID_ARCH_ABI=x86_64 \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" .. && \
+          -DBUILD_SHARED_LIBS=OFF .. && \
           cmake --build . -j8
       - run: cp -L build-static-android-x86_64/libleveldb.a libleveldb-${{ github.event.inputs.version-name }}-android-static-x86_64.a
       - uses: actions/upload-artifact@v4
@@ -376,6 +404,9 @@ jobs:
   macos:
     name: Apple
     runs-on: macos-latest
+    env:
+      CC: /usr/local/bin/gcc-9
+      CXX: /usr/local/bin/g++-9
     steps:
       - uses: actions/checkout@v4
         with:
@@ -383,6 +414,7 @@ jobs:
           repository: 'google/leveldb'
           ref: ${{ github.event.inputs.leveldb-ref }}
           submodules: true
+      - run: brew install gcc@9
 
       # macOS arm64 shared
       - name: macOs arm64 shared
@@ -735,7 +767,7 @@ jobs:
   publish-release-with-files:
     name: Create Publication
     needs:
-      - windows
+#      - windows
       - linux
       - macos
     runs-on: ubuntu-latest
