@@ -1,6 +1,7 @@
 name: Build LevelDB
 
 on:
+  push:
   workflow_dispatch:
     inputs:
       version-name:
@@ -20,97 +21,92 @@ permissions:
   contents: write
 
 jobs:
-#  windows:
-#    if: ${{ github.event.inputs.enable-windows == 'true' }}
-#    name: Windows
-#    runs-on: windows-latest
-#    env:
-#      CC: gcc
-#      CXX: g++
-#      PATH: C:\tools\mingw64\bin;%PATH%
-#    steps:
-#      - uses: actions/checkout@v4
-#        with:
-#          fetch-depth: 0
-#          repository: 'google/leveldb'
-#          ref: ${{ github.event.inputs.leveldb-ref }}
-#          submodules: true
-#      - name: Install dependencies with Chocolatey
-#        run: |
-#          choco install cmake --installargs '"ADD_CMAKE_TO_PATH=System"'
-#          choco install mingw -y
-#
-#      # Windows x64 shared
-#      - name: Configure shared for Windows x64
-#        run: |
-#          mkdir build-shared-x64 && cd build-shared-x64
-#          cmake -G "MinGW Makefiles"`
-#            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-#            -DBUILD_SHARED_LIBS=ON ..
-#      - name: Build shared for Windows x64
-#        run: cmake --build build-shared-x64 --config Release -j8
-#      - run: tree
-#        if: ${{ github.event.inputs.debug == 'true' }}
-#      - run: Compress-Archive -Path "build-shared-x64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip"
-#      - uses: actions/upload-artifact@v4
-#        with:
-#          name: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip
-#          path: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip
-#
-#      # Windows x64 static
-#      - name: Configure static for Windows x64
-#        run: |
-#          mkdir build-static-x64 && cd build-static-x64
-#          cmake -G "MinGW Makefiles" -A x64 `
-#            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-#            -DBUILD_SHARED_LIBS=OFF -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" ..
-#      - name: Build static for Windows x64
-#        run: cmake --build build-static-x64 --config Release -j8
-#      - run: tree
-#        if: ${{ github.event.inputs.debug == 'true' }}
-#      - run: Compress-Archive -Path "build-static-x64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.zip"
-#      - uses: actions/upload-artifact@v4
-#        with:
-#          name: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.zip
-#          path: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.zip
-#
-#      # Windows ARM64 shared
-#      - name: Configure shared for Windows ARM64
-#        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
-#        run: |
-#          mkdir build-shared-arm64 && cd build-shared-arm64
-#          cmake -G "MinGW Makefiles" -A ARM64 `
-#            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-#            -DBUILD_SHARED_LIBS=ON -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" ..
-#      - name: Build LevelDB for Windows ARM64
-#        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
-#        run: cmake --build build-shared-arm64 --config Release -j8
-#      - run: Compress-Archive -Path "build-shared-arm64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-shared-arm64.zip"
-#        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
-#      - uses: actions/upload-artifact@v4
-#        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
-#        with:
-#          name: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-arm64.zip
-#          path: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-arm64.zip
-#
-#      # Windows ARM64 static
-#      - name: Configure static for Windows ARM64
-#        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
-#        run: |
-#          mkdir build-static-arm64 && cd build-static-arm64
-#          cmake -G "MinGW Makefiles" -A ARM64 `
-#            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-#            -DBUILD_SHARED_LIBS=OFF -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" ..
-#      - name: Build LevelDB for Windows ARM64
-#        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
-#        run: cmake --build build-static-arm64 --config Release -j8
-#      - run: Compress-Archive -Path "build-static-arm64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.zip"
-#        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
-#      - uses: actions/upload-artifact@v4
-#        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
-#        with:
-#          name: libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.zip
-#          path: libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.zip
+  windows:
+    name: Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          repository: 'google/leveldb'
+          ref: ${{ github.event.inputs.leveldb-ref }}
+          submodules: true
+      - name: Install dependencies with Chocolatey
+        run: |
+          choco install cmake --installargs '"ADD_CMAKE_TO_PATH=System"'
+          choco install mingw --version=9.4.0 -y
+
+      # Windows x64 shared
+      - name: Configure shared for Windows x64
+        run: |
+          mkdir build-shared-x64 && cd build-shared-x64
+          cmake -G "MinGW Makefiles"`
+            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
+            -DBUILD_SHARED_LIBS=ON ..
+      - name: Build shared for Windows x64
+        run: cmake --build build-shared-x64 --config Release -j8
+      - run: tree
+        if: ${{ github.event.inputs.debug == 'true' }}
+      - run: Compress-Archive -Path "build-shared-x64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip
+          path: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip
+
+      # Windows x64 static
+      - name: Configure static for Windows x64
+        run: |
+          mkdir build-static-x64 && cd build-static-x64
+          cmake -G "MinGW Makefiles" -A x64 `
+            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
+            -DBUILD_SHARED_LIBS=OFF -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" ..
+      - name: Build static for Windows x64
+        run: cmake --build build-static-x64 --config Release -j8
+      - run: tree
+        if: ${{ github.event.inputs.debug == 'true' }}
+      - run: Compress-Archive -Path "build-static-x64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.zip
+          path: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.zip
+
+      # Windows ARM64 shared
+      - name: Configure shared for Windows ARM64
+        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
+        run: |
+          mkdir build-shared-arm64 && cd build-shared-arm64
+          cmake -G "MinGW Makefiles" -A ARM64 `
+            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
+            -DBUILD_SHARED_LIBS=ON -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" ..
+      - name: Build LevelDB for Windows ARM64
+        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
+        run: cmake --build build-shared-arm64 --config Release -j8
+      - run: Compress-Archive -Path "build-shared-arm64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-shared-arm64.zip"
+        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
+      - uses: actions/upload-artifact@v4
+        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
+        with:
+          name: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-arm64.zip
+          path: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-arm64.zip
+
+      # Windows ARM64 static
+      - name: Configure static for Windows ARM64
+        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
+        run: |
+          mkdir build-static-arm64 && cd build-static-arm64
+          cmake -G "MinGW Makefiles" -A ARM64 `
+            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
+            -DBUILD_SHARED_LIBS=OFF -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" ..
+      - name: Build LevelDB for Windows ARM64
+        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
+        run: cmake --build build-static-arm64 --config Release -j8
+      - run: Compress-Archive -Path "build-static-arm64/Release/*" -DestinationPath "libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.zip"
+        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
+      - uses: actions/upload-artifact@v4
+        if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
+        with:
+          name: libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.zip
+          path: libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.zip
 
   linux:
     name: Linux
@@ -122,40 +118,12 @@ jobs:
           repository: 'google/leveldb'
           ref: ${{ github.event.inputs.leveldb-ref }}
           submodules: true
-      - run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y && sudo apt-get update
-      - run: sudo apt-get install gcc-9 g++-9 gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu cmake gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf gcc-9-mingw-w64-x86-64 g++-9-mingw-w64-x86-64 gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu -y
-
-      # Windows x64 shared
-      - name: Build Windows shared x64
+      - name: Install repositories
+        run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y && sudo apt-get update
+      - name: Install dependencies
         run: |
-          mkdir build-windows-shared-x64 && cd build-windows-shared-x64 && \
-          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
-          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc-9 -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++-9 .. && \
-          cmake --build . -j8
-      - run: tree
-        if: ${{ github.event.inputs.debug == 'true' }}
-      - run: cp -L build-windows-shared-x64/libleveldb.lib libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.lib
-      - uses: actions/upload-artifact@v4
-        with:
-          name: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.lib
-          path: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.lib
-
-      # Windows x64 static
-      - name: Build Windows static x64
-        run: |
-          mkdir build-windows-static-x64 && cd build-windows-static-x64 && \
-          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
-          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc-9 -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++-9 .. && \
-          cmake --build . -j8
-      - run: tree
-        if: ${{ github.event.inputs.debug == 'true' }}
-      - run: cp -L build-windows-static-x64/libleveldb.lib libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.lib
-      - uses: actions/upload-artifact@v4
-        with:
-          name: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.lib
-          path: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.lib
+          sudo apt-get install gcc-9 g++-9 gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu cmake \
+          gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu -y
 
       # Linux x64 shared
       - name: Build shared x64
@@ -759,7 +727,7 @@ jobs:
   publish-release-with-files:
     name: Create Publication
     needs:
-#      - windows
+      - windows
       - linux
       - macos
     runs-on: ubuntu-latest
