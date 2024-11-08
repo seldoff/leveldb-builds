@@ -1,7 +1,6 @@
 name: Build LevelDB
 
 on:
-  push:
   workflow_dispatch:
     inputs:
       version-name:
