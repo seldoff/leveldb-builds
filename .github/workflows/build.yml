@@ -24,7 +24,7 @@ jobs:
     name: Windows
     runs-on: windows-latest
     env:
-      PATH: "C:\ProgramData\chocolatey\lib\mingw\tools\install\bin;${{ env.PATH }}"
+      PATH: "C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\bin;${{ env.PATH }}"
     steps:
       - uses: actions/checkout@v4
         with:
