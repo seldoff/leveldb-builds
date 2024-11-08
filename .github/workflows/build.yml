@@ -23,10 +23,12 @@ jobs:
   windows:
     name: Windows
     runs-on: windows-latest
-    env:
-      PATH: "C:\\tools\\mingw64\\bin;C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\bin;$env:PATH"
+
     steps:
-      - run: echo $env:PATH
+      # add C:\tools\mingw64\bin and C:\ProgramData\chocolatey\lib\mingw\tools\install\bin to PATH
+      - run: |
+          $env:Path += ";C:\tools\mingw64\bin;C:\ProgramData\chocolatey\lib\mingw\tools\install\bin"
+          echo $env:Path
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
