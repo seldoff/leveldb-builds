@@ -23,8 +23,6 @@ jobs:
   windows:
     name: Windows
     runs-on: windows-latest
-    env:
-      PATH: "C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\bin;${{ github.env.PATH }}"
     steps:
       - run: echo %PATH%
       - uses: actions/checkout@v4
@@ -37,7 +35,7 @@ jobs:
         run: |
           choco install cmake --installargs '"ADD_CMAKE_TO_PATH=System"'
           choco install mingw --version=9.4.0 -y
-
+          echo "C:\tools\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Verify MinGW Installation
         run: |
           gcc --version
