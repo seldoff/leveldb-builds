@@ -41,7 +41,7 @@ jobs:
           mkdir build-shared-x64 && cd build-shared-x64
           cmake -G "MinGW Makefiles"`
             -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-            -DBUILD_SHARED_LIBS=ON ..
+            -DBUILD_SHARED_LIBS=ON -DCMAKE_C_COMPILER=gcc-9 -DCMAKE_CXX_COMPILER=g++-9 ..
       - name: Build shared for Windows x64
         run: cmake --build build-shared-x64 --config Release -j8
       - run: Move-Item -Path ".\build-shared-x64\libleveldb.dll" -Destination "libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.dll"
@@ -56,7 +56,7 @@ jobs:
           mkdir build-static-x64 && cd build-static-x64
           cmake -G "MinGW Makefiles" -A x64 `
             -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-            -DBUILD_SHARED_LIBS=OFF ..
+            -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_COMPILER=gcc-9 -DCMAKE_CXX_COMPILER=g++-9 ..
       - name: Build static for Windows x64
         run: cmake --build build-static-x64 --config Release -j8
       - run: tree
@@ -81,7 +81,7 @@ jobs:
           mkdir build-shared-arm64 && cd build-shared-arm64
           cmake -G "MinGW Makefiles" -A ARM64 `
             -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-            -DBUILD_SHARED_LIBS=ON -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" ..
+            -DBUILD_SHARED_LIBS=ON -DCMAKE_C_COMPILER=gcc-9 -DCMAKE_CXX_COMPILER=g++-9 ..
       - name: Build LevelDB for Windows ARM64
         if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
         run: cmake --build build-shared-arm64 --config Release -j8
@@ -100,7 +100,7 @@ jobs:
           mkdir build-static-arm64 && cd build-static-arm64
           cmake -G "MinGW Makefiles" -A ARM64 `
             -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-            -DBUILD_SHARED_LIBS=OFF -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" ..
+            -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_COMPILER=gcc-9 -DCMAKE_CXX_COMPILER=g++-9 ..
       - name: Build LevelDB for Windows ARM64
         if: ${{ github.event.inputs.enable-windows-arm64 == 'true' }}
         run: cmake --build build-static-arm64 --config Release -j8
