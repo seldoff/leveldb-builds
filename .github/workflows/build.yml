@@ -9,14 +9,6 @@ on:
       leveldb-ref:
         description: "LevelDB git ref to build"
         required: true
-      enable-windows:
-        description: "Enable Windows build"
-        required: true
-        default: false
-      enable-windows-arm64:
-        description: "Enable Windows arm64 build"
-        required: false
-        default: false
       debug:
         description: "Debug mode"
         required: true
