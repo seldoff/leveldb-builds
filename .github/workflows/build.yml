@@ -35,44 +35,7 @@ jobs:
         run: |
           choco install cmake --no-progress --installargs '"ADD_CMAKE_TO_PATH=System"'
           choco install mingw --no-progress --version=9.4.0 -y
-      - name: Verify MinGW Installation
-        run: |
-          C:\ProgramData\Chocolatey\bin\gcc --version
-          C:\ProgramData\Chocolatey\bin\g++ --version
-
-      # Windows x64 shared
-      - name: Configure shared for Windows x64
-        run: |
-          mkdir build-shared-x64 && cd build-shared-x64
-          cmake -G "MinGW Makefiles"`
-            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-            -DBUILD_SHARED_LIBS=ON -DCMAKE_CXX_COMPILER=C:\ProgramData\Chocolatey\bin\g++.exe `
-            -DCMAKE_C_COMPILER=C:\ProgramData\Chocolatey\bin\gcc.exe `
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" ..
-      - name: Build shared for Windows x64
-        run: cmake --build build-shared-x64 --config Release -j8
-      - run: Compress-Archive -Path build-shared-x64\*.dll, build-shared-x64\*.dll.a -DestinationPath libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip
-      - uses: actions/upload-artifact@v4
-        with:
-          name: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip
-          path: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip
-
-      # Windows x64 static
-      - name: Configure static for Windows x64
-        run: |
-          mkdir build-static-x64 && cd build-static-x64
-          cmake -G "MinGW Makefiles" `
-            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-            -DBUILD_SHARED_LIBS=OFF -DCMAKE_CXX_COMPILER=C:\ProgramData\Chocolatey\bin\g++.exe `
-            -DCMAKE_C_COMPILER=C:\ProgramData\Chocolatey\bin\gcc.exe  `
-            -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" ..
-      - name: Build static for Windows x64
-        run: cmake --build build-static-x64 --config Release -j8
-      - run: Move-Item -Path ".\build-static-x64\libleveldb.a" -Destination "libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.a"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.a
-          path: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.a
+          choco install llvm -y
 
       # Windows ARM64 shared
       - name: Configure shared for Windows ARM64
@@ -115,6 +78,40 @@ jobs:
         with:
           name: libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.a
           path: libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.a
+
+      # Windows x64 shared
+      - name: Configure shared for Windows x64
+        run: |
+          mkdir build-shared-x64 && cd build-shared-x64
+          cmake -G "MinGW Makefiles"`
+            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
+            -DBUILD_SHARED_LIBS=ON -DCMAKE_CXX_COMPILER=C:\ProgramData\Chocolatey\bin\g++.exe `
+            -DCMAKE_C_COMPILER=C:\ProgramData\Chocolatey\bin\gcc.exe `
+          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" ..
+      - name: Build shared for Windows x64
+        run: cmake --build build-shared-x64 --config Release -j8
+      - run: Compress-Archive -Path build-shared-x64\*.dll, build-shared-x64\*.dll.a -DestinationPath libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip
+          path: libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip
+
+      # Windows x64 static
+      - name: Configure static for Windows x64
+        run: |
+          mkdir build-static-x64 && cd build-static-x64
+          cmake -G "MinGW Makefiles" `
+            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
+            -DBUILD_SHARED_LIBS=OFF -DCMAKE_CXX_COMPILER=C:\ProgramData\Chocolatey\bin\g++.exe `
+            -DCMAKE_C_COMPILER=C:\ProgramData\Chocolatey\bin\gcc.exe  `
+            -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" ..
+      - name: Build static for Windows x64
+        run: cmake --build build-static-x64 --config Release -j8
+      - run: Move-Item -Path ".\build-static-x64\libleveldb.a" -Destination "libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.a"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.a
+          path: libleveldb-${{ github.event.inputs.version-name }}-windows-static-x64.a
 
   linux:
     name: Linux
