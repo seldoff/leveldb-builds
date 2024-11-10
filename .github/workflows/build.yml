@@ -63,13 +63,13 @@ jobs:
         run: |
           mkdir build-static-arm64 && cd build-static-arm64
           cmake -G "MinGW Makefiles" `
-            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-            -DBUILD_SHARED_LIBS=OFF `
-            -DCMAKE_C_COMPILER=clang `
-            -DCMAKE_CXX_COMPILER=clang++ `
-            -DCMAKE_SYSTEM_NAME=Windows `
-            -DCMAKE_SYSTEM_PROCESSOR=ARM64 `
-            -DCMAKE_CXX_FLAGS="--target=aarch64-windows -static-libgcc -static-libstdc++" `
+          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
+          -DBUILD_SHARED_LIBS=OFF `
+          -DCMAKE_C_COMPILER=clang `
+          -DCMAKE_CXX_COMPILER=clang++ `
+          -DCMAKE_SYSTEM_NAME=Windows `
+          -DCMAKE_SYSTEM_PROCESSOR=ARM64 `
+          -DCMAKE_CXX_FLAGS="--target=aarch64-windows -static-libgcc -static-libstdc++" `
             ..
       - name: Build static for Windows ARM64
         run: cmake --build build-static-arm64 --config Release -j8
@@ -84,9 +84,9 @@ jobs:
         run: |
           mkdir build-shared-x64 && cd build-shared-x64
           cmake -G "MinGW Makefiles"`
-            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-            -DBUILD_SHARED_LIBS=ON -DCMAKE_CXX_COMPILER=C:\ProgramData\Chocolatey\bin\g++.exe `
-            -DCMAKE_C_COMPILER=C:\ProgramData\Chocolatey\bin\gcc.exe `
+          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
+          -DBUILD_SHARED_LIBS=ON -DCMAKE_CXX_COMPILER=C:\ProgramData\Chocolatey\bin\g++.exe `
+          -DCMAKE_C_COMPILER=C:\ProgramData\Chocolatey\bin\gcc.exe `
           -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" ..
       - name: Build shared for Windows x64
         run: cmake --build build-shared-x64 --config Release -j8
