@@ -353,8 +353,7 @@ jobs:
           mkdir build-macos-shared-arm64 && cd build-macos-shared-arm64 && \
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=ON \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=ON .. && \
           cmake --build . -j8
       - run: cp -L build-macos-shared-arm64/libleveldb.dylib libleveldb-${{ github.event.inputs.version-name }}-macos-shared-arm64.dylib
       - uses: actions/upload-artifact@v4
@@ -368,8 +367,7 @@ jobs:
           mkdir build-macos-static-arm64 && cd build-macos-static-arm64 && \
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=OFF .. && \
           cmake --build . -j8
       - run: cp -L build-macos-static-arm64/libleveldb.a libleveldb-${{ github.event.inputs.version-name }}-macos-static-arm64.a
       - uses: actions/upload-artifact@v4
@@ -383,8 +381,7 @@ jobs:
           mkdir build-macos-shared-x64 && cd build-macos-shared-x64 && \
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=ON -DCMAKE_SYSTEM_NAME=Darwin \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=ON -DCMAKE_SYSTEM_NAME=Darwin .. && \
           cmake --build . -j8
       - run: cp -L build-macos-shared-x64/libleveldb.dylib libleveldb-${{ github.event.inputs.version-name }}-macos-shared-x64.dylib
       - uses: actions/upload-artifact@v4
@@ -398,8 +395,7 @@ jobs:
           mkdir build-macos-static-x64 && cd build-macos-static-x64 && \
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=OFF -DCMAKE_SYSTEM_NAME=Darwin \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=OFF -DCMAKE_SYSTEM_NAME=Darwin .. && \
           cmake --build . -j8
       - run: cp -L build-macos-static-x64/libleveldb.a libleveldb-${{ github.event.inputs.version-name }}-macos-static-x64.a
       - uses: actions/upload-artifact@v4
@@ -414,8 +410,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
           -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphoneos \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=ON \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=ON .. && \
           cmake --build . -j8
       - run: cp -L build-ios-shared-arm64/libleveldb.dylib libleveldb-${{ github.event.inputs.version-name }}-ios-shared-arm64.dylib
       - uses: actions/upload-artifact@v4
@@ -430,8 +425,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
           -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphoneos \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=OFF .. && \
           cmake --build . -j8
       - run: cp -L build-ios-static-arm64/libleveldb.a libleveldb-${{ github.event.inputs.version-name }}-ios-static-arm64.a
       - uses: actions/upload-artifact@v4
@@ -446,8 +440,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
           -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphonesimulator \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=ON \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=ON .. && \
           cmake --build . -j8
       - run: cp -L build-ios-simulator-shared-arm64/libleveldb.dylib libleveldb-${{ github.event.inputs.version-name }}-ios-simulator-shared-arm64.dylib
       - uses: actions/upload-artifact@v4
@@ -462,8 +455,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
           -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphonesimulator \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=OFF .. && \
           cmake --build . -j8
       - run: cp -L build-ios-simulator-static-arm64/libleveldb.a libleveldb-${{ github.event.inputs.version-name }}-ios-simulator-static-arm64.a
       - uses: actions/upload-artifact@v4
@@ -478,8 +470,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 \
           -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphonesimulator \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=ON \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=ON .. && \
           cmake --build . -j8
       - run: cp -L build-ios-simulator-shared-x64/libleveldb.dylib libleveldb-${{ github.event.inputs.version-name }}-ios-simulator-shared-x64.dylib
       - uses: actions/upload-artifact@v4
@@ -494,8 +485,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 \
           -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_SYSROOT=iphonesimulator \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=OFF .. && \
           cmake --build . -j8
       - run: cp -L build-ios-simulator-static-x64/libleveldb.a libleveldb-${{ github.event.inputs.version-name }}-ios-simulator-static-x64.a
       - uses: actions/upload-artifact@v4
@@ -510,8 +500,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
           -DCMAKE_SYSTEM_NAME=watchOS -DCMAKE_OSX_SYSROOT=watchos \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=ON \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=ON .. && \
           cmake --build . -j8
       - run: cp -L build-watchos-shared-arm64/libleveldb.dylib libleveldb-${{ github.event.inputs.version-name }}-watchos-shared-arm64.dylib
       - uses: actions/upload-artifact@v4
@@ -526,8 +515,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
           -DCMAKE_SYSTEM_NAME=watchOS -DCMAKE_OSX_SYSROOT=watchos \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=OFF .. && \
           cmake --build . -j8
       - run: cp -L build-watchos-static-arm64/libleveldb.a libleveldb-${{ github.event.inputs.version-name }}-watchos-static-arm64.a
       - uses: actions/upload-artifact@v4
@@ -542,8 +530,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
           -DCMAKE_SYSTEM_NAME=watchOS -DCMAKE_OSX_SYSROOT=watchsimulator \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=ON \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=ON .. && \
           cmake --build . -j8\
       - run: cp -L build-watchos-simulator-shared-arm64/libleveldb.dylib libleveldb-${{ github.event.inputs.version-name }}-watchos-simulator-shared-arm64.dylib
       - uses: actions/upload-artifact@v4
@@ -558,8 +545,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
           -DCMAKE_SYSTEM_NAME=watchOS -DCMAKE_OSX_SYSROOT=watchsimulator \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=OFF .. && \
           cmake --build . -j8\
       - run: cp -L build-watchos-simulator-static-arm64/libleveldb.a libleveldb-${{ github.event.inputs.version-name }}-watchos-simulator-static-arm64.a
       - uses: actions/upload-artifact@v4
@@ -574,8 +560,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 \
           -DCMAKE_SYSTEM_NAME=watchOS -DCMAKE_OSX_SYSROOT=watchsimulator \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=ON \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=ON .. && \
           cmake --build . -j8
       - run: cp -L build-watchos-simulator-shared-x64/libleveldb.dylib libleveldb-${{ github.event.inputs.version-name }}-watchos-simulator-shared-x64.dylib
       - uses: actions/upload-artifact@v4
@@ -590,8 +575,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 \
           -DCMAKE_SYSTEM_NAME=watchOS -DCMAKE_OSX_SYSROOT=watchsimulator \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=OFF .. && \
           cmake --build . -j8
       - run: cp -L build-watchos-simulator-static-x64/libleveldb.a libleveldb-${{ github.event.inputs.version-name }}-watchos-simulator-static-x64.a
       - uses: actions/upload-artifact@v4
@@ -606,8 +590,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
           -DCMAKE_SYSTEM_NAME=tvOS -DCMAKE_OSX_SYSROOT=appletvos \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=ON \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=ON .. && \
           cmake --build . -j8
       - run: cp -L build-tvos-shared-arm64/libleveldb.dylib libleveldb-${{ github.event.inputs.version-name }}-tvos-shared-arm64.dylib
       - uses: actions/upload-artifact@v4
@@ -622,8 +605,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
           -DCMAKE_SYSTEM_NAME=tvOS -DCMAKE_OSX_SYSROOT=appletvos \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=OFF .. && \
           cmake --build . -j8
       - run: cp -L build-tvos-static-arm64/libleveldb.a libleveldb-${{ github.event.inputs.version-name }}-tvos-static-arm64.a
       - uses: actions/upload-artifact@v4
@@ -638,8 +620,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
           -DCMAKE_SYSTEM_NAME=tvOS -DCMAKE_OSX_SYSROOT=appletvsimulator \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=ON \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=ON .. && \
           cmake --build . -j8
       - run: cp -L build-tvos-simulator-shared-arm64/libleveldb.dylib libleveldb-${{ github.event.inputs.version-name }}-tvos-simulator-shared-arm64.dylib
       - uses: actions/upload-artifact@v4
@@ -654,8 +635,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 \
           -DCMAKE_SYSTEM_NAME=tvOS -DCMAKE_OSX_SYSROOT=appletvsimulator \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=OFF .. && \
           cmake --build . -j8
       - run: cp -L build-tvos-simulator-static-arm64/libleveldb.a libleveldb-${{ github.event.inputs.version-name }}-tvos-simulator-static-arm64.a
       - uses: actions/upload-artifact@v4
@@ -670,8 +650,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 \
           -DCMAKE_SYSTEM_NAME=tvOS -DCMAKE_OSX_SYSROOT=appletvsimulator \
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=ON \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=ON .. && \
           cmake --build . -j8
       - run: cp -L build-tvos-simulator-shared-x64/libleveldb.dylib libleveldb-${{ github.event.inputs.version-name }}-tvos-simulator-shared-x64.dylib
       - uses: actions/upload-artifact@v4
@@ -686,8 +665,7 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 \
           -DCMAKE_SYSTEM_NAME=tvOS -DCMAKE_OSX_SYSROOT=appletvsimulator \
           -DLEVELDB_BUILD_TESTS=off -DLEVELDB_BUILD_BENCHMARKS=OFF \
-          -DBUILD_SHARED_LIBS=OFF \
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" .. && \
+          -DBUILD_SHARED_LIBS=OFF .. && \
           cmake --build . -j8
       - run: cp -L build-tvos-simulator-static-x64/libleveldb.a libleveldb-${{ github.event.inputs.version-name }}-tvos-simulator-static-x64.a
       - uses: actions/upload-artifact@v4
