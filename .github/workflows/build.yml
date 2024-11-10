@@ -35,20 +35,20 @@ jobs:
         run: |
           choco install cmake --no-progress --installargs '"ADD_CMAKE_TO_PATH=System"'
           choco install mingw --no-progress --version=9.4.0 -y
-          choco install llvm -y
+          choco install llvm --no-progress -y
 
       # Windows ARM64 shared
       - name: Configure shared for Windows ARM64
         run: |
           mkdir build-shared-arm64 && cd build-shared-arm64
-          cmake -G "MinGW Makefiles" \
-            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-            -DBUILD_SHARED_LIBS=ON \
-            -DCMAKE_C_COMPILER=clang \
-            -DCMAKE_CXX_COMPILER=clang++ \
-            -DCMAKE_SYSTEM_NAME=Windows \
-            -DCMAKE_SYSTEM_PROCESSOR=ARM64 \
-            -DCMAKE_CXX_FLAGS="--target=aarch64-windows -static-libgcc -static-libstdc++" \
+          cmake -G "MinGW Makefiles" `
+            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
+            -DBUILD_SHARED_LIBS=ON `
+            -DCMAKE_C_COMPILER=clang `
+            -DCMAKE_CXX_COMPILER=clang++ `
+            -DCMAKE_SYSTEM_NAME=Windows `
+            -DCMAKE_SYSTEM_PROCESSOR=ARM64 `
+            -DCMAKE_CXX_FLAGS="--target=aarch64-windows -static-libgcc -static-libstdc++" `
             ..
       - name: Build shared for Windows ARM64
         run: cmake --build build-shared-arm64 --config Release -j8
@@ -62,14 +62,14 @@ jobs:
       - name: Configure static for Windows ARM64
         run: |
           mkdir build-static-arm64 && cd build-static-arm64
-          cmake -G "MinGW Makefiles" \
-            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF \
-            -DBUILD_SHARED_LIBS=OFF \
-            -DCMAKE_C_COMPILER=clang \
-            -DCMAKE_CXX_COMPILER=clang++ \
-            -DCMAKE_SYSTEM_NAME=Windows \
-            -DCMAKE_SYSTEM_PROCESSOR=ARM64 \
-            -DCMAKE_CXX_FLAGS="--target=aarch64-windows -static-libgcc -static-libstdc++" \
+          cmake -G "MinGW Makefiles" `
+            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
+            -DBUILD_SHARED_LIBS=OFF `
+            -DCMAKE_C_COMPILER=clang `
+            -DCMAKE_CXX_COMPILER=clang++ `
+            -DCMAKE_SYSTEM_NAME=Windows `
+            -DCMAKE_SYSTEM_PROCESSOR=ARM64 `
+            -DCMAKE_CXX_FLAGS="--target=aarch64-windows -static-libgcc -static-libstdc++" `
             ..
       - name: Build static for Windows ARM64
         run: cmake --build build-static-arm64 --config Release -j8
