@@ -73,7 +73,7 @@ jobs:
             ..
       - name: Build static for Windows ARM64
         run: cmake --build build-static-arm64 --config Release -j8
-      - run: Move-Item -Path ".\build-static-arm64\libleveldb.lib" -Destination "libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.lib"
+      - run: Move-Item -Path ".\build-static-arm64\leveldb.lib" -Destination "libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.lib"
       - uses: actions/upload-artifact@v4
         with:
           name: libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.lib
