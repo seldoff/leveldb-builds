@@ -170,11 +170,11 @@ jobs:
           -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" \
           -DBUILD_SHARED_LIBS=ON .. && \
           cmake --build . -j8
-      - run: cp -L build-static-arm64/libleveldb.so libleveldb-${{ github.event.inputs.version-name }}-linux-static-arm64.so
+      - run: cp -L build-static-arm64/libleveldb.so libleveldb-${{ github.event.inputs.version-name }}-linux-shared-arm64.so
       - uses: actions/upload-artifact@v4
         with:
-          name: libleveldb-${{ github.event.inputs.version-name }}-linux-static-arm64.so
-          path: libleveldb-${{ github.event.inputs.version-name }}-linux-static-arm64.so
+          name: libleveldb-${{ github.event.inputs.version-name }}-linux-shared-arm64.so
+          path: libleveldb-${{ github.event.inputs.version-name }}-linux-shared-arm64.so
 
       # Linux ARM64 static
       - name: Build static arm64
