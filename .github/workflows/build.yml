@@ -70,7 +70,7 @@ jobs:
           -DCMAKE_SYSTEM_NAME=Windows `
           -DCMAKE_SYSTEM_PROCESSOR=ARM64 `
           -DCMAKE_CXX_FLAGS="--target=aarch64-windows -Dstrdup=_strdup -D_CRT_SECURE_NO_WARNINGS" `
-            ..
+          ..
       - name: Build static for Windows ARM64
         run: cmake --build build-static-arm64 --config Release -j8
       - run: Move-Item -Path ".\build-static-arm64\leveldb.lib" -Destination "libleveldb-${{ github.event.inputs.version-name }}-windows-static-arm64.lib"
