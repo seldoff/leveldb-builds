@@ -42,14 +42,14 @@ jobs:
         run: |
           mkdir build-shared-arm64 && cd build-shared-arm64
           cmake -G "MinGW Makefiles" `
-            -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-            -DBUILD_SHARED_LIBS=ON `
-            -DCMAKE_C_COMPILER=clang `
-            -DCMAKE_CXX_COMPILER=clang++ `
-            -DCMAKE_SYSTEM_NAME=Windows `
-            -DCMAKE_SYSTEM_PROCESSOR=ARM64 `
-            -DCMAKE_CXX_FLAGS="--target=aarch64-windows -Dstrdup=_strdup -D_CRT_SECURE_NO_WARNINGS" `
-            ..
+          -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
+          -DBUILD_SHARED_LIBS=ON `
+          -DCMAKE_C_COMPILER=clang `
+          -DCMAKE_CXX_COMPILER=clang++ `
+          -DCMAKE_SYSTEM_NAME=Windows `
+          -DCMAKE_SYSTEM_PROCESSOR=ARM64 `
+          -DCMAKE_CXX_FLAGS="--target=aarch64-windows -Dstrdup=_strdup -D_CRT_SECURE_NO_WARNINGS -static-libgcc -static-libc++ -fuse-ld=lld" `
+          ..
       - name: Build shared for Windows ARM64
         run: cmake --build build-shared-arm64 --config Release -j8
       - run: Compress-Archive -Path build-shared-arm64\*.dll, build-shared-arm64\*.dll.a -DestinationPath libleveldb-${{ github.event.inputs.version-name }}-windows-shared-arm64.zip
@@ -83,10 +83,12 @@ jobs:
       - name: Configure shared for Windows x64
         run: |
           mkdir build-shared-x64 && cd build-shared-x64
-          cmake -G "MinGW Makefiles"`
+          cmake -G "MinGW Makefiles" `
           -DLEVELDB_BUILD_TESTS=OFF -DLEVELDB_BUILD_BENCHMARKS=OFF `
-          -DBUILD_SHARED_LIBS=ON -DCMAKE_CXX_COMPILER=C:\ProgramData\Chocolatey\bin\g++.exe `
-          -DCMAKE_C_COMPILER=C:\ProgramData\Chocolatey\bin\gcc.exe ..
+          -DBUILD_SHARED_LIBS=ON `
+          -DCMAKE_CXX_COMPILER=C:\ProgramData\Chocolatey\bin\g++.exe `
+          -DCMAKE_C_COMPILER=C:\ProgramData\Chocolatey\bin\gcc.exe `
+          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" ..
       - name: Build shared for Windows x64
         run: cmake --build build-shared-x64 --config Release -j8
       - run: Compress-Archive -Path build-shared-x64\*.dll, build-shared-x64\*.dll.a -DestinationPath libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip
