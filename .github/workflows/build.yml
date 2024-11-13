@@ -48,7 +48,7 @@ jobs:
           -DCMAKE_CXX_COMPILER=clang++ `
           -DCMAKE_SYSTEM_NAME=Windows `
           -DCMAKE_SYSTEM_PROCESSOR=ARM64 `
-          -DCMAKE_CXX_FLAGS="--target=aarch64-windows -Dstrdup=_strdup -D_CRT_SECURE_NO_WARNINGS -static-libgcc -static-libc++ -fuse-ld=lld" `
+          -DCMAKE_CXX_FLAGS="--target=aarch64-windows -Dstrdup=_strdup -D_CRT_SECURE_NO_WARNINGS -static-libgcc -static-libstdc++ -fuse-ld=lld" `
           ..
       - name: Build shared for Windows ARM64
         run: cmake --build build-shared-arm64 --config Release -j8
