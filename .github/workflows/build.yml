@@ -88,7 +88,7 @@ jobs:
           -DBUILD_SHARED_LIBS=ON `
           -DCMAKE_CXX_COMPILER=C:\ProgramData\Chocolatey\bin\g++.exe `
           -DCMAKE_C_COMPILER=C:\ProgramData\Chocolatey\bin\gcc.exe `
-          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" ..
+          -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++ -lpthread" ..
       - name: Build shared for Windows x64
         run: cmake --build build-shared-x64 --config Release -j8
       - run: Compress-Archive -Path build-shared-x64\*.dll, build-shared-x64\*.dll.a -DestinationPath libleveldb-${{ github.event.inputs.version-name }}-windows-shared-x64.zip
