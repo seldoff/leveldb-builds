@@ -1,0 +1,3 @@
+plugins {
+    `level-db-builds`
+}
