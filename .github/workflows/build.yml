@@ -17,7 +17,7 @@ jobs:
       - name: Install dependencies with Chocolatey
         run: |
           choco install cmake --no-progress --installargs '"ADD_CMAKE_TO_PATH=System"'
-          choco install mingw --no-progress --version=9.4.0 -y
+          choco install mingw --no-progress --version=8.1.0 -y
           choco install llvm --no-progress -y
       - uses: gradle/actions/setup-gradle@v3
       - run: ./gradlew windowsZip
@@ -37,8 +37,8 @@ jobs:
         run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y && sudo apt-get update
       - name: Install dependencies
         run: |
-          sudo apt-get install gcc-9 g++-9 gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu cmake \
-          gcc-9-arm-linux-gnueabihf g++-9-arm-linux-gnueabihf gcc-9-aarch64-linux-gnu g++-9-aarch64-linux-gnu -y
+          sudo apt-get install gcc-8 g++-8 gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu cmake \
+          gcc-8-arm-linux-gnueabihf g++-8-arm-linux-gnueabihf gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu -y
 
       - run: chmod +x gradlew
       - uses: gradle/actions/setup-gradle@v3
