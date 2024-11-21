@@ -77,10 +77,6 @@ val winTasks =
             cxxCompiler = "clang++"
             systemName = "Windows"
             systemProcessorName = "ARM64"
-            cxxFlags = when {
-                isShared -> listOf("-lc++", "-lc")
-                else -> emptyList()
-            }
             val ext = when {
                 isShared -> "dll"
                 else -> "lib"
