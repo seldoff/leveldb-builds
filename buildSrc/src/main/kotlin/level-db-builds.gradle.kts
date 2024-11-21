@@ -68,8 +68,6 @@ val levelDbSourcesDir = layout.projectDirectory.dir("leveldb")
 val winTasks =
     withMatrix("windows") { isRelease, isShared, baseTaskName, dirPath ->
 
-        val flags = listOf("-static-libgcc", "-static-libstdc++")
-
         add(tasks.register<BuildLeveldb>("${baseTaskName}Arm64") {
             onlyIf { OperatingSystem.current().isWindows }
             windowsCmakeName = "MinGW Makefiles"
@@ -79,7 +77,10 @@ val winTasks =
             cxxCompiler = "clang++"
             systemName = "Windows"
             systemProcessorName = "ARM64"
-            cxxFlags = flags
+            cxxFlags = when {
+                isShared -> listOf("-lc++", "-lc")
+                else -> emptyList()
+            }
             val ext = when {
                 isShared -> "dll"
                 else -> "lib"
@@ -95,9 +96,10 @@ val winTasks =
             shared = isShared
             cCompiler = "C:\\ProgramData\\Chocolatey\\bin\\gcc.exe"
             cxxCompiler = "C:\\ProgramData\\Chocolatey\\bin\\g++.exe"
+            val basicFlags = listOf("-static-libgcc", "-static-libstdc++")
             cxxFlags = when {
-                isShared -> flags + "-lpthread"
-                else -> flags
+                isShared -> basicFlags + "-lpthread"
+                else -> basicFlags
             }
             val ext = when {
                 isShared -> "dll"

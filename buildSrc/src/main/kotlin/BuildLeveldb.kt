@@ -178,18 +178,18 @@ open class BuildLeveldb @Inject constructor(
         systemVersion.orNull?.let { add("-DCMAKE_SYSTEM_VERSION=$it") }
         androidStlType.orNull?.let { add("-DCMAKE_ANDROID_STL_TYPE=$it") }
         add("-DBUILD_SHARED_LIBS=${shared.get().asString()}")
-        add("-DCMAKE_C_COMPILER=${cCompiler.get().quoted()}")
-        add("-DCMAKE_CXX_COMPILER=${cxxCompiler.get().quoted()}")
+        add("-DCMAKE_C_COMPILER=${cCompiler.get()}")
+        add("-DCMAKE_CXX_COMPILER=${cxxCompiler.get()}")
         systemProcessorName.orNull?.let { add("-DCMAKE_SYSTEM_PROCESSOR=$it") }
         cxxFlags.get()
             .takeIf { it.isNotEmpty() }
             ?.joinToString(" ")
-            ?.also { add("-DCMAKE_CXX_FLAGS=${it.quoted()}") }
+            ?.also { add("-DCMAKE_CXX_FLAGS=$it") }
 
         cFlags.get()
             .takeIf { it.isNotEmpty() }
             ?.joinToString(" ")
-            ?.also { add("-DCMAKE_C_FLAGS=${it.quoted()}") }
+            ?.also { add("-DCMAKE_C_FLAGS=$it") }
         add("-B")
         add(outputDir.get().asFile.absolutePath)
         add("-S")
@@ -210,13 +210,6 @@ private fun ExecOutput.forwardOutputs(logger: Logger) {
         .let { logger.error(it) }
     result.get().assertNormalExitValue()
 }
-
-//fun String.quoted() = when {
-//    OperatingSystem.current().isWindows -> "\"$this\""
-//    else -> this
-//}
-
-fun String.quoted() = this
 
 private fun Boolean.asString() =
     if (this) "ON" else "OFF"
