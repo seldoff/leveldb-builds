@@ -84,8 +84,8 @@ jobs:
       - run: ./gradlew mergeZips
       - name: Set current date as env variable
         run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+      - run: tree
       - uses: softprops/action-gh-release@v2
-        if: ${{ github.event.inputs.debug == 'false' }}
         with:
           files: build/archives/leveldb.zip
           name: ${{ github.env.NOW }}-SNAPSHOT
