@@ -115,7 +115,7 @@ val buildLeveldbWindows by tasks.registering {
     }
 }
 
-val windowsZip by tasks.registering(Zip::class) {
+tasks.register<Zip>("windowsZip") {
     from(buildLeveldbWindows) {
         eachFile {
             path = file.toPath().relativeTo(leveldbBuildDirPath.get()).toString()
@@ -179,7 +179,7 @@ val buildLeveldbLinux by tasks.registering {
     }
 }
 
-val linuxZip by tasks.registering(Zip::class) {
+tasks.register<Zip>("linuxZip") {
     dependsOn(linuxTasks)
     from(buildLeveldbLinux) {
         eachFile {
@@ -258,7 +258,7 @@ val buildLeveldbAndroid by tasks.registering {
     }
 }
 
-val androidZip by tasks.registering(Zip::class) {
+tasks.register<Zip>("androidZip") {
     dependsOn(buildLeveldbAndroid)
     from(buildLeveldbAndroid) {
         eachFile {
@@ -327,7 +327,7 @@ val buildLeveldbApple by tasks.registering {
     }
 }
 
-val appleZip by tasks.registering(Zip::class) {
+tasks.register<Zip>("appleZip") {
     from(buildLeveldbApple) {
         eachFile {
             path = file.toPath().relativeTo(leveldbBuildDirPath.get()).toString()
