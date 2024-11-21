@@ -81,6 +81,7 @@ val winTasks =
                 isShared -> "dll"
                 else -> "lib"
             }
+            cxxFlags = listOf("-D_CRT_SECURE_NO_WARNINGS", "-Dstrdup=_strdup", "--target=aarch64-windows")
             outputDir(leveldbBuildDir.map { it.dir(dirPath("arm64")) }, "libleveldb.$ext")
             sourcesDir = levelDbSourcesDir
         })
