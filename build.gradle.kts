@@ -12,7 +12,7 @@ version = "1.0-SNAPSHOT"
 
 tasks {
 
-    register<Zip>("mergeZips") {
+    register<Zip>("testMergeZips") {
         val os = OperatingSystem.current()
         val zipTasks = when {
             System.getenv("CI") == "true" -> listOf(linuxZip, androidZip, windowsZip, appleZip)
