@@ -4,8 +4,11 @@ import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.registering
 import kotlin.io.path.absolutePathString
+import kotlin.io.path.relativeTo
 
 val leveldbBuildDir = layout.buildDirectory.dir("compilations/leveldb")
+
+val leveldbBuildDirPath = leveldbBuildDir.map { it.asFile.toPath() }
 
 data class BuildConfig(
     val release: Boolean,
@@ -13,29 +16,22 @@ data class BuildConfig(
 )
 
 val matrix = buildList {
-    add(BuildConfig(false, false))
-    add(BuildConfig(false, true))
-    add(BuildConfig(true, false))
-    add(BuildConfig(true, true))
+    add(BuildConfig(release = false, shared = false))
+    add(BuildConfig(release = false, shared = true))
+    add(BuildConfig(release = true, shared = false))
+    add(BuildConfig(release = true, shared = true))
 }
 
 fun withMatrix(
-    paltformName: String,
+    platformName: String,
     action: MutableList<TaskProvider<BuildLeveldb>>.(
         release: Boolean,
         isShared: Boolean,
         baseTaskName: String,
-        baseDirPath: String
+        dirPath: (String) -> String
     ) -> Unit
-) {
-//    buildList {
-//        matrix.forEach {  }
-//    }
-}
-
-// Windows
-val winTasks = buildList {
-    matrix.forEach { (release, isShared) ->
+) = buildList {
+    matrix.forEach { (isRelease, isShared) ->
         val taskName = buildString {
             append("buildLeveldb")
             when {
@@ -43,241 +39,236 @@ val winTasks = buildList {
                 else -> append("Static")
             }
             when {
-                release -> append("Release")
+                isRelease -> append("Release")
                 else -> append("Debug")
             }
-            append("Windows")
+            append(platformName.capitalized())
         }
-        val flags = buildList {
-            addAll("-static-libgcc", "-static-libstdc++")
-            if (isShared) add("-lpthread")
-        }
-        val dirPath = buildString {
-            append("windows/")
-            when {
-                isShared -> append("shared/")
-                else -> append("static/")
+        val dirPath = { arch: String ->
+            buildString {
+                append("${platformName.decapitalized()}/")
+                when {
+                    isShared -> append("shared/")
+                    else -> append("static/")
+                }
+                append("$arch/")
+                when {
+                    isRelease -> append("release/")
+                    else -> append("debug/")
+                }
             }
-            when {
-                release -> append("release/")
-                else -> append("debug/")
-            }
         }
-        add(tasks.register<BuildLeveldb>("${taskName}Arm64") {
+        action(isRelease, isShared, taskName, dirPath)
+    }
+}
+
+// Windows
+val levelDbSourcesDir = layout.projectDirectory.dir("leveldb")
+
+val winTasks =
+    withMatrix("windows") { isRelease, isShared, baseTaskName, dirPath ->
+
+        val flags = listOf("-static-libgcc", "-static-libstdc++")
+
+        add(tasks.register<BuildLeveldb>("${baseTaskName}Arm64") {
             onlyIf { OperatingSystem.current().isWindows }
             windowsCmakeName = "MinGW Makefiles"
-            debug = !release
+            debug = !isRelease
             shared = isShared
             cCompiler = "clang"
             cxxCompiler = "clang++"
             systemName = "Windows"
             systemProcessorName = "ARM64"
             cxxFlags = flags
-            outputDir(leveldbBuildDir.map { it.dir("$dirPath/arm64") }, "libleveldb.dll")
-            sourcesDir = layout.projectDirectory.dir("leveldb")
+            val ext = when {
+                isShared -> "dll"
+                else -> "lib"
+            }
+            outputDir(leveldbBuildDir.map { it.dir(dirPath("arm64")) }, "libleveldb.$ext")
+            sourcesDir = levelDbSourcesDir
         })
 
-        add(tasks.register<BuildLeveldb>("${taskName}X64") {
+        add(tasks.register<BuildLeveldb>("${baseTaskName}X64") {
             onlyIf { OperatingSystem.current().isWindows }
             windowsCmakeName = "MinGW Makefiles"
-            debug = !release
+            debug = !isRelease
             shared = isShared
             cCompiler = "C:\\ProgramData\\Chocolatey\\bin\\gcc.exe"
             cxxCompiler = "C:\\ProgramData\\Chocolatey\\bin\\g++.exe"
-            cxxFlags = flags
-            outputDir(leveldbBuildDir.map { it.dir("$dirPath/x64") }, "libleveldb.dll")
-            sourcesDir = layout.projectDirectory.dir("leveldb")
+            cxxFlags = when {
+                isShared -> flags + "-lpthread"
+                else -> flags
+            }
+            val ext = when {
+                isShared -> "dll"
+                else -> "a"
+            }
+            outputDir(leveldbBuildDir.map { it.dir(dirPath("x64")) }, "libleveldb.$ext")
+            sourcesDir = levelDbSourcesDir
         })
+    }
+
+val buildLeveldbWindows by tasks.registering {
+    group = "build"
+    dependsOn(winTasks)
+    onlyIf { OperatingSystem.current().isWindows }
+    winTasks.forEach { task ->
+        outputs.file(task.flatMap { it.outputArtifact })
     }
 }
 
-val buildLeveldbWindows by tasks.registering {
-    dependsOn(winTasks)
+val windowsZip by tasks.registering(Zip::class) {
+    from(buildLeveldbWindows) {
+        eachFile {
+            path = file.toPath().relativeTo(leveldbBuildDirPath.get()).toString()
+        }
+    }
+    archiveBaseName = "leveldb-windows"
+    destinationDirectory = layout.buildDirectory.dir("archives")
 }
 
 // Linux
-val linuxTasks = buildList<Any> {
-//    matrix.forEach { (release, isShared) ->
-        val buildLeveldbSharedLinuxX64 by tasks.registering(BuildLeveldb::class) {
+val linuxTasks =
+    withMatrix("linux") { isRelease, isShared, baseTaskName, dirPath ->
+        val flags = when {
+            isShared -> listOf("-static-libgcc", "-static-libstdc++")
+            else -> emptyList()
+        }
+        val ext = when {
+            isShared -> "so"
+            else -> "a"
+        }
+        add(tasks.register<BuildLeveldb>("${baseTaskName}X64") {
             onlyIf { OperatingSystem.current().isLinux }
-            // debug = TODO()
-            shared = true
+            debug = !isRelease
+            shared = isShared
             cCompiler = "gcc-9"
             cxxCompiler = "g++-9"
-            cxxFlags = listOf("-static-libgcc", "-static-libstdc++")
-            outputDir(leveldbBuildDir.map { it.dir("linux/shared/x64") }, "libleveldb.so")
-            sourcesDir = layout.projectDirectory.dir("leveldb")
-        }
+            cxxFlags = flags
+            outputDir(leveldbBuildDir.map { it.dir(dirPath("x64")) }, "libleveldb.$ext")
+            sourcesDir = levelDbSourcesDir
+        })
 
-        val buildLeveldbStaticLinuxX64 by tasks.registering(BuildLeveldb::class) {
+        add(tasks.register<BuildLeveldb>("${baseTaskName}Arm64") {
             onlyIf { OperatingSystem.current().isLinux }
-            // debug = TODO()
-            shared = false
-            cCompiler = "gcc-9"
-            cxxCompiler = "g++-9"
-            outputDir(leveldbBuildDir.map { it.dir("linux/static/x64") }, "libleveldb.a")
-            sourcesDir = layout.projectDirectory.dir("leveldb")
-        }
-
-        val buildLeveldbSharedLinuxArm64 by tasks.registering(BuildLeveldb::class) {
-            onlyIf { OperatingSystem.current().isLinux }
-            // debug = TODO()
-            shared = true
+            debug = !isRelease
+            shared = isShared
             cCompiler = "aarch64-linux-gnu-gcc-9"
             cxxCompiler = "aarch64-linux-gnu-g++-9"
-            cxxFlags = listOf("-static-libgcc", "-static-libstdc++")
-            outputDir(leveldbBuildDir.map { it.dir("linux/shared/arm64") }, "libleveldb.so")
-            sourcesDir = layout.projectDirectory.dir("leveldb")
-        }
+            cxxFlags = flags
+            outputDir(leveldbBuildDir.map { it.dir(dirPath("arm64")) }, "libleveldb.$ext")
+            sourcesDir = levelDbSourcesDir
+        })
 
-        val buildLeveldbStaticLinuxArm64 by tasks.registering(BuildLeveldb::class) {
+        add(tasks.register<BuildLeveldb>("${baseTaskName}Armv7a") {
             onlyIf { OperatingSystem.current().isLinux }
-            // debug = TODO()
-            shared = false
-            cCompiler = "aarch64-linux-gnu-gcc-9"
-            cxxCompiler = "aarch64-linux-gnu-g++-9"
-            outputDir(leveldbBuildDir.map { it.dir("linux/static/arm64") }, "libleveldb.a")
-            sourcesDir = layout.projectDirectory.dir("leveldb")
-        }
-
-        val buildLeveldbSharedLinuxArmV7a by tasks.registering(BuildLeveldb::class) {
-            onlyIf { OperatingSystem.current().isLinux }
-            // debug = TODO()
-            shared = true
+            debug = !isRelease
+            shared = isShared
             cCompiler = "arm-linux-gnueabihf-gcc-9"
             cxxCompiler = "arm-linux-gnueabihf-g++-9"
-            cxxFlags = listOf("-static-libgcc", "-static-libstdc++")
-            outputDir(leveldbBuildDir.map { it.dir("linux/shared/armv7a") }, "libleveldb.so")
-            sourcesDir = layout.projectDirectory.dir("leveldb")
-        }
+            cxxFlags = flags
+            outputDir(leveldbBuildDir.map { it.dir(dirPath("armv7a")) }, "libleveldb.$ext")
+            sourcesDir = levelDbSourcesDir
+        })
+    }
 
-        val buildLeveldbLinux by tasks.registering {
-            dependsOn(
-                buildLeveldbSharedLinuxX64,
-                buildLeveldbStaticLinuxX64,
-                buildLeveldbSharedLinuxArm64,
-                buildLeveldbStaticLinuxArm64,
-                buildLeveldbSharedLinuxArmV7a
-            )
-        }
-
-// Android
-        val buildLeveldbSharedAndroidArm64 by tasks.registering(BuildLeveldb::class) {
-            onlyIf { OperatingSystem.current().isLinux }
-            systemName = "Android"
-            androidNdkPath = findAndroidNdk()?.absolutePathString()
-            systemVersion = 35
-            androidStlType = "c++_static"
-            androidAbi = "arm64-v8a"
-            shared = true
-            // debug = TODO()
-            outputDir(leveldbBuildDir.map { it.dir("android/shared/arm64") }, "libleveldb.so")
-            sourcesDir = layout.projectDirectory.dir("leveldb")
-        }
-
-        val buildLeveldbStaticAndroidArm64 by tasks.registering(BuildLeveldb::class) {
-            onlyIf { OperatingSystem.current().isLinux }
-            systemName = "Android"
-            androidNdkPath = findAndroidNdk()?.absolutePathString()
-            systemVersion = 35
-            androidStlType = "c++_shared"
-            androidAbi = "arm64-v8a"
-            shared = false
-            // debug = TODO()
-            outputDir(leveldbBuildDir.map { it.dir("android/static/arm64") }, "libleveldb.a")
-            sourcesDir = layout.projectDirectory.dir("leveldb")
-        }
-
-        val buildLeveldbSharedAndroidArmV7a by tasks.registering(BuildLeveldb::class) {
-            onlyIf { OperatingSystem.current().isLinux }
-            systemName = "Android"
-            androidNdkPath = findAndroidNdk()?.absolutePathString()
-            systemVersion = 35
-            androidStlType = "c++_static"
-            androidAbi = "armeabi-v7a"
-            shared = true
-            // debug = TODO()
-            outputDir(leveldbBuildDir.map { it.dir("android/shared/armv7a") }, "libleveldb.so")
-            sourcesDir = layout.projectDirectory.dir("leveldb")
-        }
-
-        val buildLeveldbStaticAndroidArmV7a by tasks.registering(BuildLeveldb::class) {
-            onlyIf { OperatingSystem.current().isLinux }
-            systemName = "Android"
-            androidNdkPath = findAndroidNdk()?.absolutePathString()
-            systemVersion = 35
-            androidStlType = "c++_shared"
-            androidAbi = "armeabi-v7a"
-            shared = false
-            // debug = TODO()
-            outputDir(leveldbBuildDir.map { it.dir("android/static/armv7a") }, "libleveldb.a")
-            sourcesDir = layout.projectDirectory.dir("leveldb")
-        }
-
-        val buildLeveldbSharedAndroidX86 by tasks.registering(BuildLeveldb::class) {
-            onlyIf { OperatingSystem.current().isLinux }
-            systemName = "Android"
-            androidNdkPath = findAndroidNdk()?.absolutePathString()
-            systemVersion = 35
-            androidStlType = "c++_static"
-            androidAbi = "x86"
-            shared = true
-            // debug = TODO()
-            outputDir(leveldbBuildDir.map { it.dir("android/shared/x86") }, "libleveldb.so")
-            sourcesDir = layout.projectDirectory.dir("leveldb")
-        }
-
-        val buildLeveldbStaticAndroidX86 by tasks.registering(BuildLeveldb::class) {
-            onlyIf { OperatingSystem.current().isLinux }
-            systemName = "Android"
-            androidNdkPath = findAndroidNdk()?.absolutePathString()
-            systemVersion = 35
-            androidStlType = "c++_shared"
-            androidAbi = "x86"
-            shared = false
-            // debug = TODO()
-            outputDir(leveldbBuildDir.map { it.dir("android/static/x86") }, "libleveldb.a")
-            sourcesDir = layout.projectDirectory.dir("leveldb")
-        }
-
-        val buildLeveldbSharedAndroidX64 by tasks.registering(BuildLeveldb::class) {
-            onlyIf { OperatingSystem.current().isLinux }
-            systemName = "Android"
-            androidNdkPath = findAndroidNdk()?.absolutePathString()
-            systemVersion = 35
-            androidStlType = "c++_static"
-            androidAbi = "x86_64"
-            shared = true
-            // debug = TODO()
-            outputDir(leveldbBuildDir.map { it.dir("android/shared/x86_64") }, "libleveldb.so")
-            sourcesDir = layout.projectDirectory.dir("leveldb")
-        }
-
-        val buildLeveldbStaticAndroidX64 by tasks.registering(BuildLeveldb::class) {
-            onlyIf { OperatingSystem.current().isLinux }
-            systemName = "Android"
-            androidNdkPath = findAndroidNdk()?.absolutePathString()
-            systemVersion = 35
-            androidStlType = "c++_shared"
-            androidAbi = "x86_64"
-            shared = false
-            // debug = TODO()
-            outputDir(leveldbBuildDir.map { it.dir("android/static/x86_64") }, "libleveldb.a")
-            sourcesDir = layout.projectDirectory.dir("leveldb")
-//        }
+val buildLeveldbLinux by tasks.registering {
+    group = "build"
+    dependsOn(linuxTasks)
+    onlyIf { OperatingSystem.current().isLinux }
+    linuxTasks.forEach { task ->
+        outputs.file(task.flatMap { it.outputArtifact })
     }
 }
+
+val linuxZip by tasks.registering(Zip::class) {
+    dependsOn(linuxTasks)
+    from(buildLeveldbLinux) {
+        eachFile {
+            path = file.toPath().relativeTo(leveldbBuildDirPath.get()).toString()
+        }
+    }
+    archiveBaseName = "leveldb-linux"
+    destinationDirectory = layout.buildDirectory.dir("archives")
+}
+
+// Android
+val androidTasks =
+    withMatrix("android") { isRelease, isShared, baseTaskName, dirPath ->
+        val stlType = when {
+            isShared -> "c++_shared"
+            else -> "c++_static"
+        }
+        val ext = when {
+            isShared -> "so"
+            else -> "a"
+        }
+        add(tasks.register<BuildLeveldb>("${baseTaskName}Arm64") {
+            systemName = "Android"
+            androidNdkPath = findAndroidNdk()?.absolutePathString()
+            systemVersion = 35
+            androidStlType = stlType
+            androidAbi = "arm64-v8a"
+            shared = isShared
+            debug = !isRelease
+            outputDir(leveldbBuildDir.map { it.dir(dirPath("arm64")) }, "libleveldb.$ext")
+            sourcesDir = levelDbSourcesDir
+        })
+
+        add(tasks.register<BuildLeveldb>("${baseTaskName}ArmV7a") {
+            systemName = "Android"
+            androidNdkPath = findAndroidNdk()?.absolutePathString()
+            systemVersion = 35
+            androidStlType = stlType
+            androidAbi = "armeabi-v7a"
+            shared = isShared
+            debug = !isRelease
+            outputDir(leveldbBuildDir.map { it.dir(dirPath("armv7a")) }, "libleveldb.$ext")
+            sourcesDir = levelDbSourcesDir
+        })
+
+        add(tasks.register<BuildLeveldb>("${baseTaskName}X86") {
+            systemName = "Android"
+            androidNdkPath = findAndroidNdk()?.absolutePathString()
+            systemVersion = 35
+            androidStlType = stlType
+            androidAbi = "x86"
+            shared = isShared
+            debug = !isRelease
+            outputDir(leveldbBuildDir.map { it.dir(dirPath("x86")) }, "libleveldb.$ext")
+            sourcesDir = levelDbSourcesDir
+        })
+
+        add(tasks.register<BuildLeveldb>("${baseTaskName}X64") {
+            systemName = "Android"
+            androidNdkPath = findAndroidNdk()?.absolutePathString()
+            systemVersion = 35
+            androidStlType = stlType
+            androidAbi = "x86_64"
+            shared = isShared
+            debug = !isRelease
+            outputDir(leveldbBuildDir.map { it.dir(dirPath("x64")) }, "libleveldb.$ext")
+            sourcesDir = levelDbSourcesDir
+        })
+    }
+
 val buildLeveldbAndroid by tasks.registering {
-    dependsOn(
-//        buildLeveldbSharedAndroidArm64,
-//        buildLeveldbStaticAndroidArm64,
-//        buildLeveldbSharedAndroidArmV7a,
-//        buildLeveldbStaticAndroidArmV7a,
-//        buildLeveldbSharedAndroidX86,
-//        buildLeveldbStaticAndroidX86,
-//        buildLeveldbSharedAndroidX64,
-//        buildLeveldbStaticAndroidX64
-    )
+    group = "build"
+    dependsOn(androidTasks)
+    androidTasks.forEach { task ->
+        outputs.file(task.flatMap { it.outputArtifact })
+    }
+}
+
+val androidZip by tasks.registering(Zip::class) {
+    dependsOn(buildLeveldbAndroid)
+    from(buildLeveldbAndroid) {
+        eachFile {
+            path = file.toPath().relativeTo(leveldbBuildDirPath.get()).toString()
+        }
+    }
+    archiveBaseName = "leveldb-android"
+    destinationDirectory = layout.buildDirectory.dir("archives")
 }
 
 // Apple
@@ -308,46 +299,42 @@ val appleTargets = listOf(
     AppleTarget("x86_64", "watchOS", "watchsimulator"),
 )
 
-val appleTasks = buildList {
-    appleTargets.forEach { (arch, sysName, sysRoot) ->
-        val taskName = "${sysRoot.capitalized()}${arch.capitalized()}"
-        if (sysRoot == "macosx") {
-            add(tasks.register<BuildLeveldb>("buildLeveldbShared$taskName") {
-                onlyIf { OperatingSystem.current().isMacOsX }
-                // debug = TODO()
-                shared = true
-                systemName = sysName
-                osxArch = arch
-                osxSysroot = sysRoot
-                outputDir(
-                    leveldbBuildDir.map { it.dir("$sysRoot/shared/$arch") },
-                    "libleveldb.dylib"
-                )
-                sourcesDir = layout.projectDirectory.dir("leveldb")
-            })
+val appleTasks = appleTargets.flatMap { (arch, sysName, sysRoot) ->
+    withMatrix(sysRoot) { isRelease, isShared, baseTaskName, dirPath ->
+
+        if (isShared && sysRoot != "macosx") return@withMatrix
+        val extension = when {
+            isShared -> "dylib"
+            else -> "a"
         }
-        add(tasks.register<BuildLeveldb>("buildLeveldbStatic$taskName") {
+        add(tasks.register<BuildLeveldb>("${baseTaskName}${arch.capitalized()}") {
             onlyIf { OperatingSystem.current().isMacOsX }
-            // debug = TODO()
-            shared = false
+            shared = isShared
+            debug = !isRelease
             systemName = sysName
             osxArch = arch
             osxSysroot = sysRoot
-            outputDir(leveldbBuildDir.map { it.dir("$sysRoot/static/$arch") }, "leveldb.a")
-            sourcesDir = layout.projectDirectory.dir("leveldb")
+            outputDir(leveldbBuildDir.map { it.dir(dirPath(arch)) }, "libleveldb.$extension")
+            sourcesDir = levelDbSourcesDir
         })
     }
 }
 
 val buildLeveldbApple by tasks.registering {
+    group = "build"
     dependsOn(appleTasks)
+    onlyIf { OperatingSystem.current().isMacOsX }
+    appleTasks.forEach { task ->
+        outputs.file(task.flatMap { it.outputArtifact })
+    }
 }
 
-val buildLeveldb by tasks.registering {
-    dependsOn(
-//        buildLeveldbWindows,
-//        buildLeveldbLinux,
-//        buildLeveldbAndroid,
-//        buildLeveldbApple
-    )
+val appleZip by tasks.registering(Zip::class) {
+    from(buildLeveldbApple) {
+        eachFile {
+            path = file.toPath().relativeTo(leveldbBuildDirPath.get()).toString()
+        }
+    }
+    archiveBaseName = "leveldb-apple"
+    destinationDirectory = layout.buildDirectory.dir("archives")
 }

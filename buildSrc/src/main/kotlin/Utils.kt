@@ -1,21 +1,10 @@
-import org.gradle.api.Project
-import org.gradle.api.file.CopySpec
-import org.gradle.api.file.Directory
-import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.Sync
-import org.gradle.api.tasks.TaskProvider
-import org.gradle.kotlin.dsl.registering
+import java.util.Locale
 import java.util.Properties
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 import kotlin.io.path.listDirectoryEntries
-import kotlin.time.Duration.Companion.days
-
-fun String.toCamelCase() =
-    split("[^A-Za-z0-9]+".toRegex())
-        .joinToString("") { it.lowercase().replaceFirstChar(Char::uppercase) }
-        .replaceFirstChar(Char::lowercase)
+import org.gradle.api.Project
 
 val Project.localProperties: Map<String, String>
     get() {
@@ -59,3 +48,6 @@ private fun Project.getAndroidNdkPathString(): String? =
 fun <T> MutableList<T>.addAll(vararg elements: T) {
     addAll(elements)
 }
+
+fun String.decapitalized() =
+    replaceFirstChar { it.lowercase(Locale.getDefault()) }

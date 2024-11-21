@@ -5,3 +5,4 @@ package-lock.json
 .gradle/
 build/
 .kotlin/
+local.properties

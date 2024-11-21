@@ -2,19 +2,22 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.Directory
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.internal.os.OperatingSystem
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
 open class BuildLeveldb @Inject constructor(
-    objectFactory: ObjectFactory
+    objectFactory: ObjectFactory,
+    private val providers: ProviderFactory,
 ) : DefaultTask() {
 
     init {
@@ -28,7 +31,12 @@ open class BuildLeveldb @Inject constructor(
 
     @get:Input
     val cmakePath = objectFactory.property<String>()
-        .convention("cmake")
+        .convention(
+            providers.exec { commandLine("which", "cmake") }
+                .standardOutput
+                .asText
+                .map { it.lines().first() }
+        )
 
     /**
      * -DLEVELDB_BUILD_TESTS
@@ -121,7 +129,7 @@ open class BuildLeveldb @Inject constructor(
     @get:Optional
     val androidStlType = objectFactory.property<String>()
 
-    fun outputDir(dir: Provider<Directory>, artifactName: String){
+    fun outputDir(dir: Provider<Directory>, artifactName: String) {
         outputDir = dir
         outputArtifact = dir.map { it.file(artifactName) }
     }
@@ -129,24 +137,27 @@ open class BuildLeveldb @Inject constructor(
     @TaskAction
     fun compile() {
         val cmakeCommand = getCmakeCommand()
-        project.exec {
-            standardOutput = System.out
-            errorOutput = System.err
+        providers.exec {
             executable = cmakePath.get()
             args = cmakeCommand
 
-            logger.lifecycle("Executing ${commandLine.joinToString(" ")}")
+            logger.info("Executing ${commandLine.joinToString(" ")}")
         }
+            .result
+            .get()
+
         val makeCommand = buildList {
             add("--build")
             add(outputDir.get().asFile.absolutePath)
             add("-j${Runtime.getRuntime().availableProcessors()}")
         }
-        project.exec {
+        providers.exec {
             executable = cmakePath.get()
             args = makeCommand
-            logger.lifecycle("Executing ${commandLine.joinToString(" ")}")
+            logger.info("Executing ${commandLine.joinToString(" ")}")
         }
+            .result
+            .get()
     }
 
     private fun getCmakeCommand() = buildList {
@@ -163,17 +174,17 @@ open class BuildLeveldb @Inject constructor(
         systemVersion.orNull?.let { add("-DCMAKE_SYSTEM_VERSION=$it") }
         androidStlType.orNull?.let { add("-DCMAKE_ANDROID_STL_TYPE=$it") }
         add("-DBUILD_SHARED_LIBS=${shared.get().asString()}")
-        add("-DCMAKE_C_COMPILER=${cCompiler.get()}")
-        add("-DCMAKE_CXX_COMPILER=${cxxCompiler.get()}")
+        add("-DCMAKE_C_COMPILER=${cCompiler.get().quoted()}")
+        add("-DCMAKE_CXX_COMPILER=${cxxCompiler.get().quoted()}")
         systemProcessorName.orNull?.let { add("-DCMAKE_SYSTEM_PROCESSOR=$it") }
         cxxFlags.get()
             .takeIf { it.isNotEmpty() }
-            ?.let { flags -> flags.joinToString(" ") }
-            ?.also { add("-DCMAKE_CXX_FLAGS=$it") }
+            ?.joinToString(" ")
+            ?.also { add("-DCMAKE_CXX_FLAGS=${it.quoted()}") }
 
         cFlags.get()
             .takeIf { it.isNotEmpty() }
-            ?.let { flags -> flags.joinToString(" ") }
+            ?.joinToString(" ")
             ?.also { add("-DCMAKE_C_FLAGS=${it.quoted()}") }
         add("-B")
         add(outputDir.get().asFile.absolutePath)
@@ -183,17 +194,10 @@ open class BuildLeveldb @Inject constructor(
 
 }
 
-private fun String.quoted() = "\"$this\""
+fun String.quoted() = when {
+    OperatingSystem.current().isWindows -> "\"$this\""
+    else -> this
+}
 
 private fun Boolean.asString() =
     if (this) "ON" else "OFF"
-
-fun <T, R, K : Any> combine(
-    first: Provider<T>,
-    second: Provider<R>,
-    block: (T, R) -> K
-): Provider<K> = first.flatMap { firstValue: T ->
-    second.map { secondValue: R ->
-        block(firstValue, secondValue)
-    }
-}
