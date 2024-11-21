@@ -1,3 +1,6 @@
+import kotlin.io.path.extension
+import kotlin.io.path.isDirectory
+import kotlin.io.path.listDirectoryEntries
 import org.gradle.internal.os.OperatingSystem
 
 plugins {
@@ -22,5 +25,16 @@ tasks {
         archiveBaseName = "leveldb"
         destinationDirectory = layout.buildDirectory.dir("archives")
         zipTasks.forEach { from(it.flatMap { it.archiveFile }.map { zipTree(it) }) }
+
+        // Merge all zips in the project directory
+        // when running in CI
+        layout.projectDirectory
+            .asFile
+            .toPath()
+            .listDirectoryEntries()
+            .filter { it.isDirectory() }
+            .flatMap { it.listDirectoryEntries() }
+            .filter { it.extension == "zip" }
+            .forEach { from(zipTree(it)) }
     }
 }
