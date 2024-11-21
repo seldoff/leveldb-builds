@@ -31,12 +31,7 @@ open class BuildLeveldb @Inject constructor(
 
     @get:Input
     val cmakePath = objectFactory.property<String>()
-        .convention(
-            providers.exec { commandLine("which", "cmake") }
-                .standardOutput
-                .asText
-                .map { it.lines().first() }
-        )
+        .convention("cmake")
 
     /**
      * -DLEVELDB_BUILD_TESTS
