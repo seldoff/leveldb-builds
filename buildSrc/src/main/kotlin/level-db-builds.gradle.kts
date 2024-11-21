@@ -165,7 +165,7 @@ val linuxTasks =
             shared = isShared
             cCompiler = "arm-linux-gnueabihf-gcc-9"
             cxxCompiler = "arm-linux-gnueabihf-g++-9"
-            cxxFlags = flags
+            cxxFlags = flags + "-Wno-psabi"
             outputDir(leveldbBuildDir.map { it.dir(dirPath("armv7a")) }, "libleveldb.$ext")
             sourcesDir = levelDbSourcesDir
         })
