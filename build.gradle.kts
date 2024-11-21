@@ -1,7 +1,10 @@
-import kotlin.io.path.extension
-import kotlin.io.path.isDirectory
-import kotlin.io.path.listDirectoryEntries
+@file:OptIn(ExperimentalPathApi::class)
+
+import kotlin.io.path.ExperimentalPathApi
 import org.gradle.internal.os.OperatingSystem
+import kotlin.io.path.Path
+import kotlin.io.path.name
+import kotlin.io.path.walk
 
 plugins {
     `level-db-builds`
@@ -33,13 +36,8 @@ tasks {
         destinationDirectory = layout.buildDirectory.dir("archives")
 
         // Merge all zips in the project directory when running in CI
-        layout.projectDirectory
-            .asFile
-            .toPath()
-            .listDirectoryEntries()
-            .filter { it.isDirectory() }
-            .flatMap { it.listDirectoryEntries() }
-            .filter { it.extension == "zip" }
+        Path(".").walk()
+            .filter { it.name.startsWith("leveldb-") && it.name.endsWith(".zip") }
             .forEach { from(zipTree(it)) }
     }
 }

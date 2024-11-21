@@ -75,10 +75,10 @@ jobs:
       - macos
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
       - uses: actions/checkout@v4
         with:
           submodules: true
+      - uses: actions/download-artifact@v4
       - run: chmod +x gradlew
       - uses: gradle/gradle-build-action@v3
       - run: ./gradlew mergeZips
