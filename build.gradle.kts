@@ -11,6 +11,7 @@ group = "com.github.lamba92"
 version = "1.0-SNAPSHOT"
 
 tasks {
+
     register<Zip>("mergeZips") {
         val os = OperatingSystem.current()
         val zipTasks = when {
@@ -22,12 +23,16 @@ tasks {
         }
 
         dependsOn(zipTasks)
-        archiveBaseName = "leveldb"
+        archiveBaseName = "leveldb-test"
         destinationDirectory = layout.buildDirectory.dir("archives")
         zipTasks.forEach { from(it.flatMap { it.archiveFile }.map { zipTree(it) }) }
+    }
 
-        // Merge all zips in the project directory
-        // when running in CI
+    register<Zip>("mergeZips") {
+        archiveBaseName = "leveldb"
+        destinationDirectory = layout.buildDirectory.dir("archives")
+
+        // Merge all zips in the project directory when running in CI
         layout.projectDirectory
             .asFile
             .toPath()
