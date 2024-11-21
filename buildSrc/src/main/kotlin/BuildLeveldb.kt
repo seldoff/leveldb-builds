@@ -14,6 +14,8 @@ import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
+import org.gradle.api.logging.Logger
+import org.gradle.process.ExecOutput
 
 open class BuildLeveldb @Inject constructor(
     objectFactory: ObjectFactory,
@@ -31,7 +33,15 @@ open class BuildLeveldb @Inject constructor(
 
     @get:Input
     val cmakePath = objectFactory.property<String>()
-        .convention("cmake")
+        .convention(
+            when {
+                OperatingSystem.current().isWindows -> providers.provider { "cmake" }
+                else -> providers.exec { commandLine("which", "cmake") }
+                    .standardOutput
+                    .asText
+                    .map { it.lines().first() }
+            }
+        )
 
     /**
      * -DLEVELDB_BUILD_TESTS
@@ -135,11 +145,10 @@ open class BuildLeveldb @Inject constructor(
         providers.exec {
             executable = cmakePath.get()
             args = cmakeCommand
-
+            isIgnoreExitValue = true
             logger.info("Executing ${commandLine.joinToString(" ")}")
         }
-            .result
-            .get()
+            .forwardOutputs(logger)
 
         val makeCommand = buildList {
             add("--build")
@@ -149,10 +158,10 @@ open class BuildLeveldb @Inject constructor(
         providers.exec {
             executable = cmakePath.get()
             args = makeCommand
+            isIgnoreExitValue = true
             logger.info("Executing ${commandLine.joinToString(" ")}")
         }
-            .result
-            .get()
+            .forwardOutputs(logger)
     }
 
     private fun getCmakeCommand() = buildList {
@@ -187,6 +196,19 @@ open class BuildLeveldb @Inject constructor(
         add(sourcesDir.get().asFile.absolutePath)
     }
 
+}
+
+private fun ExecOutput.forwardOutputs(logger: Logger) {
+    result.get()
+    standardOutput
+        .asText
+        .get()
+        .let { logger.lifecycle(it) }
+    standardError
+        .asText
+        .get()
+        .let { logger.error(it) }
+    result.get().assertNormalExitValue()
 }
 
 fun String.quoted() = when {
