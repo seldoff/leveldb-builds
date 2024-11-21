@@ -211,10 +211,12 @@ private fun ExecOutput.forwardOutputs(logger: Logger) {
     result.get().assertNormalExitValue()
 }
 
-fun String.quoted() = when {
-    OperatingSystem.current().isWindows -> "\"$this\""
-    else -> this
-}
+//fun String.quoted() = when {
+//    OperatingSystem.current().isWindows -> "\"$this\""
+//    else -> this
+//}
+
+fun String.quoted() = this
 
 private fun Boolean.asString() =
     if (this) "ON" else "OFF"
