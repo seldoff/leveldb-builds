@@ -82,13 +82,18 @@ jobs:
       - run: chmod +x gradlew
       - uses: gradle/gradle-build-action@v3
       - run: ./gradlew mergeZips
+      - uses: actions/upload-artifact@v4
+        with:
+          name: leveldb
+          path: build/archives/leveldb.zip
       - name: Set current date as env variable
-        run: echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_ENV
+        id: set_date
+        run: echo "NOW=$(date +'%Y%m%dT%H%M%S')Z" >> $GITHUB_OUTPUT
       - run: tree
       - uses: softprops/action-gh-release@v2
         with:
           files: build/archives/leveldb.zip
-          name: ${{ github.env.NOW }}-SNAPSHOT
-          tag_name: ${{ github.env.NOW }}-SNAPSHOT
+          name: ${{ steps.set_date.outputs.NOW }}-SNAPSHOT
+          tag_name: ${{ steps.set_date.outputs.NOW }}-SNAPSHOT
           draft: false
           prerelease: false
