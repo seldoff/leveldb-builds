@@ -146,7 +146,7 @@ open class BuildLeveldb @Inject constructor(
             executable = cmakePath.get()
             args = cmakeCommand
             isIgnoreExitValue = true
-            logger.info("Executing ${commandLine.joinToString(" ")}")
+            logger.lifecycle("Executing ${commandLine.joinToString(" ")}")
         }
             .forwardOutputs(logger)
 
@@ -159,7 +159,7 @@ open class BuildLeveldb @Inject constructor(
             executable = cmakePath.get()
             args = makeCommand
             isIgnoreExitValue = true
-            logger.info("Executing ${commandLine.joinToString(" ")}")
+            logger.lifecycle("Executing ${commandLine.joinToString(" ")}")
         }
             .forwardOutputs(logger)
     }
