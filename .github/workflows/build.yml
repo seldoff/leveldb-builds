@@ -93,7 +93,7 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           files: build/archives/leveldb.zip
-          name: ${{ steps.set_date.outputs.NOW }}-SNAPSHOT
-          tag_name: ${{ steps.set_date.outputs.NOW }}-SNAPSHOT
+          name: v${{ steps.set_date.outputs.NOW }}-SNAPSHOT
+          tag_name: ${{ steps.set_date.outputs.NOW }}
           draft: false
           prerelease: false
