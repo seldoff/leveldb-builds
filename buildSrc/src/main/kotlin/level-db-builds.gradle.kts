@@ -11,15 +11,15 @@ val leveldbBuildDir = layout.buildDirectory.dir("compilations/leveldb")
 val leveldbBuildDirPath = leveldbBuildDir.map { it.asFile.toPath() }
 
 data class BuildConfig(
-    val release: Boolean,
-    val shared: Boolean,
+    val isDebug: Boolean,
+    val isShared: Boolean,
 )
 
 val matrix = buildList {
-    add(BuildConfig(release = false, shared = false))
-    add(BuildConfig(release = false, shared = true))
-    add(BuildConfig(release = true, shared = false))
-    add(BuildConfig(release = true, shared = true))
+    add(BuildConfig(isDebug = false, isShared = false))
+    add(BuildConfig(isDebug = false, isShared = true))
+    add(BuildConfig(isDebug = true, isShared = false))
+    add(BuildConfig(isDebug = true, isShared = true))
 }
 
 fun withMatrix(
@@ -31,7 +31,7 @@ fun withMatrix(
         dirPath: (String) -> String
     ) -> Unit
 ) = buildList {
-    matrix.forEach { (isRelease, isShared) ->
+    matrix.forEach { (isDebug, isShared) ->
         val taskName = buildString {
             append("buildLeveldb")
             when {
@@ -39,8 +39,8 @@ fun withMatrix(
                 else -> append("Static")
             }
             when {
-                isRelease -> append("Release")
-                else -> append("Debug")
+                isDebug -> append("Debug")
+                else -> append("Release")
             }
             append(platformName.capitalized())
         }
@@ -53,12 +53,12 @@ fun withMatrix(
                 }
                 append("$arch/")
                 when {
-                    isRelease -> append("release/")
-                    else -> append("debug/")
+                    isDebug -> append("debug/")
+                    else -> append("release/")
                 }
             }
         }
-        action(isRelease, isShared, taskName, dirPath)
+        action(isDebug, isShared, taskName, dirPath)
     }
 }
 
@@ -66,12 +66,12 @@ fun withMatrix(
 val levelDbSourcesDir = layout.projectDirectory.dir("leveldb")
 
 val winTasks =
-    withMatrix("windows") { isRelease, isShared, baseTaskName, dirPath ->
+    withMatrix("windows") { isDebug, isShared, baseTaskName, dirPath ->
 
         add(tasks.register<BuildLeveldb>("${baseTaskName}Arm64") {
             onlyIf { OperatingSystem.current().isWindows }
             windowsCmakeName = "MinGW Makefiles"
-            debug = !isRelease
+            debug = isDebug
             shared = isShared
             cCompiler = "clang"
             cxxCompiler = "clang++"
@@ -89,7 +89,7 @@ val winTasks =
         add(tasks.register<BuildLeveldb>("${baseTaskName}X64") {
             onlyIf { OperatingSystem.current().isWindows }
             windowsCmakeName = "MinGW Makefiles"
-            debug = !isRelease
+            debug = isDebug
             shared = isShared
             cCompiler = "C:\\ProgramData\\Chocolatey\\bin\\gcc.exe"
             cxxCompiler = "C:\\ProgramData\\Chocolatey\\bin\\g++.exe"
@@ -128,7 +128,7 @@ tasks.register<Zip>("windowsZip") {
 
 // Linux
 val linuxTasks =
-    withMatrix("linux") { isRelease, isShared, baseTaskName, dirPath ->
+    withMatrix("linux") { isDebug, isShared, baseTaskName, dirPath ->
         val flags = when {
             isShared -> listOf("-static-libgcc", "-static-libstdc++")
             else -> emptyList()
@@ -139,7 +139,7 @@ val linuxTasks =
         }
         add(tasks.register<BuildLeveldb>("${baseTaskName}X64") {
             onlyIf { OperatingSystem.current().isLinux }
-            debug = !isRelease
+            debug = isDebug
             shared = isShared
             cCompiler = "gcc-9"
             cxxCompiler = "g++-9"
@@ -150,7 +150,7 @@ val linuxTasks =
 
         add(tasks.register<BuildLeveldb>("${baseTaskName}Arm64") {
             onlyIf { OperatingSystem.current().isLinux }
-            debug = !isRelease
+            debug = isDebug
             shared = isShared
             cCompiler = "aarch64-linux-gnu-gcc-9"
             cxxCompiler = "aarch64-linux-gnu-g++-9"
@@ -161,7 +161,7 @@ val linuxTasks =
 
         add(tasks.register<BuildLeveldb>("${baseTaskName}Armv7a") {
             onlyIf { OperatingSystem.current().isLinux }
-            debug = !isRelease
+            debug = isDebug
             shared = isShared
             cCompiler = "arm-linux-gnueabihf-gcc-9"
             cxxCompiler = "arm-linux-gnueabihf-g++-9"
@@ -193,7 +193,7 @@ tasks.register<Zip>("linuxZip") {
 
 // Android
 val androidTasks =
-    withMatrix("android") { isRelease, isShared, baseTaskName, dirPath ->
+    withMatrix("android") { isDebug, isShared, baseTaskName, dirPath ->
         val stlType = when {
             isShared -> "c++_shared"
             else -> "c++_static"
@@ -209,7 +209,7 @@ val androidTasks =
             androidStlType = stlType
             androidAbi = "arm64-v8a"
             shared = isShared
-            debug = !isRelease
+            debug = isDebug
             outputDir(leveldbBuildDir.map { it.dir(dirPath("arm64")) }, "libleveldb.$ext")
             sourcesDir = levelDbSourcesDir
         })
@@ -221,7 +221,7 @@ val androidTasks =
             androidStlType = stlType
             androidAbi = "armeabi-v7a"
             shared = isShared
-            debug = !isRelease
+            debug = isDebug
             outputDir(leveldbBuildDir.map { it.dir(dirPath("armv7a")) }, "libleveldb.$ext")
             sourcesDir = levelDbSourcesDir
         })
@@ -233,7 +233,7 @@ val androidTasks =
             androidStlType = stlType
             androidAbi = "x86"
             shared = isShared
-            debug = !isRelease
+            debug = isDebug
             outputDir(leveldbBuildDir.map { it.dir(dirPath("x86")) }, "libleveldb.$ext")
             sourcesDir = levelDbSourcesDir
         })
@@ -245,7 +245,7 @@ val androidTasks =
             androidStlType = stlType
             androidAbi = "x86_64"
             shared = isShared
-            debug = !isRelease
+            debug = isDebug
             outputDir(leveldbBuildDir.map { it.dir(dirPath("x64")) }, "libleveldb.$ext")
             sourcesDir = levelDbSourcesDir
         })
@@ -299,7 +299,7 @@ val appleTargets = listOf(
 )
 
 val appleTasks = appleTargets.flatMap { (arch, sysName, sysRoot) ->
-    withMatrix(sysRoot) { isRelease, isShared, baseTaskName, dirPath ->
+    withMatrix(sysRoot) { isDebug, isShared, baseTaskName, dirPath ->
 
         if (isShared && sysRoot != "macosx") return@withMatrix
         val extension = when {
@@ -309,7 +309,7 @@ val appleTasks = appleTargets.flatMap { (arch, sysName, sysRoot) ->
         add(tasks.register<BuildLeveldb>("${baseTaskName}${arch.capitalized()}") {
             onlyIf { OperatingSystem.current().isMacOsX }
             shared = isShared
-            debug = !isRelease
+            debug = isDebug
             systemName = sysName
             osxArch = arch
             osxSysroot = sysRoot
