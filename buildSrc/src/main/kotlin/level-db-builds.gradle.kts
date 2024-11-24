@@ -91,8 +91,10 @@ val winTasks =
             windowsCmakeName = "MinGW Makefiles"
             debug = isDebug
             shared = isShared
-            cCompiler = "C:\\ProgramData\\Chocolatey\\bin\\gcc.exe"
-            cxxCompiler = "C:\\ProgramData\\Chocolatey\\bin\\g++.exe"
+            cCompiler = "gcc.exe"
+            cxxCompiler = "g++.exe"
+            systemName = "Windows"
+            systemProcessorName = "x86_64"
             val basicFlags = listOf("-static-libgcc", "-static-libstdc++")
             cxxFlags = when {
                 isShared -> basicFlags + "-lpthread"
