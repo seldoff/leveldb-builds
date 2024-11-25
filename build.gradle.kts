@@ -15,6 +15,10 @@ version = "1.0-SNAPSHOT"
 
 tasks {
 
+    register<Delete>("clean") {
+        delete(layout.buildDirectory)
+    }
+
     register<Zip>("testMergeZips") {
         val os = OperatingSystem.current()
         val zipTasks = when {
@@ -23,6 +27,11 @@ tasks {
             os.isLinux -> listOf(linuxZip, androidZip)
             os.isWindows -> listOf(windowsZip, androidZip)
             else -> listOf(androidZip)
+        }
+
+        from("leveldb/include") {
+            into("headers/include")
+            include("**/c.h", "**/export.h")
         }
 
         dependsOn(zipTasks)
@@ -34,6 +43,11 @@ tasks {
     register<Zip>("mergeZips") {
         archiveBaseName = "leveldb"
         destinationDirectory = layout.buildDirectory.dir("archives")
+
+        from("leveldb/include") {
+            into("headers/include")
+            include("**/c.h", "**/export.h")
+        }
 
         // Merge all zips in the project directory when running in CI
         Path(".").walk()
