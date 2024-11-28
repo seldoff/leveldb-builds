@@ -49,7 +49,7 @@ jobs:
           sudo apt-get install -t buster binutils-arm-linux-gnueabihf -y --allow-downgrades
           sudo apt-get install -t buster libc6-dev -y --allow-downgrades
       - name: Install cross compilers
-        run: sudo apt-get install -y -t buster gcc-8 g++-8 gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu /
+        run: sudo apt-get install -y -t buster gcc-8 g++-8 gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu \
           gcc-8-arm-linux-gnueabihf g++-8-arm-linux-gnueabihf -y
       - name: Install dependencies
         run: sudo apt-get install -y cmake
