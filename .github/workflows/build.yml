@@ -43,6 +43,7 @@ jobs:
           echo "deb http://ftp.debian.org/debian buster main" | sudo tee /etc/apt/sources.list.d/debian-buster.list
           sudo apt-get update
       - run: apt-cache search gcc-8-arm-linux-gnueabihf
+      - run: apt-cache policy gcc-8-arm-linux-gnueabihf
       - name: Install cross compilers
         run: sudo apt-get install -y -t buster gcc-8 g++-8 gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu \
             gcc-8-arm-linux-gnueabihf g++-8-arm-linux-gnueabihf -y
