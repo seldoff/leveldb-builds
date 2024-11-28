@@ -40,7 +40,6 @@ jobs:
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F8D2585B8783D481
       - name: Add Debian repository
         run: |
-          echo "deb http://ftp.debian.org/debian oldoldstable main" | sudo tee /etc/apt/sources.list.d/debian-oldoldstable.list
           echo "deb http://ftp.debian.org/debian buster main" | sudo tee /etc/apt/sources.list.d/debian-buster.list
           sudo apt-get update
       - name: Install dependencies
