@@ -22,7 +22,7 @@ jobs:
       - run: ./gradlew windowsArmZip
       - uses: actions/upload-artifact@v4
         with:
-          name: leveldb-windows
+          name: leveldb-windows-arm64
           path: build/archives/leveldb-windows-arm64.zip
 
   windows-x64:
@@ -44,7 +44,7 @@ jobs:
       - run: ./gradlew windowsX64Zip
       - uses: actions/upload-artifact@v4
         with:
-          name: leveldb-windows
+          name: leveldb-windows-x64
           path: build/archives/leveldb-windows-x64.zip
 
   android:
