@@ -134,6 +134,10 @@ open class BuildLeveldb @Inject constructor(
     @get:Optional
     val androidStlType = objectFactory.property<String>()
 
+    @get:Input
+    @get:Optional
+    val cxxStandard = objectFactory.property<String>()
+
     fun outputDir(dir: Provider<Directory>, artifactName: String) {
         outputDir = dir
         outputArtifact = dir.map { it.file(artifactName) }
@@ -180,6 +184,7 @@ open class BuildLeveldb @Inject constructor(
         add("-DBUILD_SHARED_LIBS=${shared.get().asString()}")
         add("-DCMAKE_C_COMPILER=${cCompiler.get()}")
         add("-DCMAKE_CXX_COMPILER=${cxxCompiler.get()}")
+        cxxStandard.orNull?.let { add("-DCMAKE_CXX_STANDARD=$it") }
         systemProcessorName.orNull?.let { add("-DCMAKE_SYSTEM_PROCESSOR=$it") }
         cxxFlags.get()
             .takeIf { it.isNotEmpty() }
