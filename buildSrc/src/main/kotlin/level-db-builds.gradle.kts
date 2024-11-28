@@ -81,7 +81,7 @@ val winTasks =
                 isShared -> "dll"
                 else -> "lib"
             }
-            cxxFlags = listOf("-D_CRT_SECURE_NO_WARNINGS", "-Dstrdup=_strdup", "--target=aarch64-windows")
+            cxxFlags = listOf("-D_CRT_SECURE_NO_WARNINGS", "-Dstrdup=_strdup", "--target=aarch64-windows", "-D_GLIBCXX_USE_CXX11_ABI=0")
             outputDir(leveldbBuildDir.map { it.dir(dirPath("arm64")) }, "leveldb.$ext")
             sourcesDir = levelDbSourcesDir
         })
@@ -95,7 +95,7 @@ val winTasks =
             cxxCompiler = "g++.exe"
             systemName = "Windows"
             systemProcessorName = "x86_64"
-            val basicFlags = listOf("-static-libgcc", "-static-libstdc++")
+            val basicFlags = listOf("-static-libgcc", "-static-libstdc++", "-D_GLIBCXX_USE_CXX11_ABI=0")
             cxxFlags = when {
                 isShared -> basicFlags + "-lpthread"
                 else -> basicFlags
@@ -133,7 +133,7 @@ val linuxTasks =
     withMatrix("linux") { isDebug, isShared, baseTaskName, dirPath ->
         val flags = when {
             isShared -> listOf("-static-libgcc", "-static-libstdc++")
-            else -> emptyList()
+            else -> listOf("-D_GLIBCXX_USE_CXX11_ABI=0")
         }
         val ext = when {
             isShared -> "so"
