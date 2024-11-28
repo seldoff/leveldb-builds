@@ -8,23 +8,39 @@ permissions:
 jobs:
   windows:
     name: Windows
-    runs-on: windows-latest
-
+    runs-on: ubuntu-latest
+    container:
+      image: gcc:8
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Install dependencies with Chocolatey
-        run: |
-          choco install cmake --no-progress
-          choco install mingw --no-progress --version=8.1.0 -y
-          choco install llvm --no-progress -y
+      - run: apt-get update && apt-get install -y mingw-w64 cmake
+      - uses: actions/setup-java@v4
+        with:
+          distribution: adopt
+          java-version: 21
       - uses: gradle/actions/setup-gradle@v3
       - run: ./gradlew windowsZip
       - uses: actions/upload-artifact@v4
         with:
           name: leveldb-windows
           path: build/archives/leveldb-windows.zip
+
+  android:
+    name: Android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - run: chmod +x gradlew
+      - uses: gradle/actions/setup-gradle@v3
+      - run: ./gradlew androidZip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: leveldb-android
+          path: build/archives/leveldb-android.zip
 
   linux:
     name: Linux
@@ -45,15 +61,11 @@ jobs:
           java-version: 21
       - run: chmod +x gradlew
       - uses: gradle/actions/setup-gradle@v3
-      - run: ./gradlew linuxZip androidZip
+      - run: ./gradlew linuxZip
       - uses: actions/upload-artifact@v4
         with:
           name: leveldb-linux
           path: build/archives/leveldb-linux.zip
-      - uses: actions/upload-artifact@v4
-        with:
-          name: leveldb-android
-          path: build/archives/leveldb-android.zip
 
   macos:
     name: macOS
@@ -72,10 +84,7 @@ jobs:
 
   publish-release-with-files:
     name: Create Publication
-    needs:
-      - windows
-      - linux
-      - macos
+    needs: [windows, android, linux, macos]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

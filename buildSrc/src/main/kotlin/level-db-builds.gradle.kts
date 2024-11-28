@@ -67,43 +67,37 @@ val levelDbSourcesDir = layout.projectDirectory.dir("leveldb")
 
 val winTasks =
     withMatrix("windows") { isDebug, isShared, baseTaskName, dirPath ->
-
+        val basicFlags = listOf("-static-libgcc", "-static-libstdc++")
+        val flags = when {
+            isShared -> basicFlags + "-lpthread"
+            else -> basicFlags
+        }
+        val ext = when {
+            isShared -> "dll"
+            else -> "a"
+        }
         add(tasks.register<BuildLeveldb>("${baseTaskName}Arm64") {
             onlyIf { OperatingSystem.current().isWindows }
-            windowsCmakeName = "MinGW Makefiles"
             debug = isDebug
             shared = isShared
-            cCompiler = "clang"
-            cxxCompiler = "clang++"
+            cCompiler = "aarch64-w64-mingw32-gcc"
+            cxxCompiler = "aarch64-w64-mingw32-g++"
             systemName = "Windows"
             systemProcessorName = "ARM64"
-            val ext = when {
-                isShared -> "dll"
-                else -> "lib"
-            }
-            cxxFlags = listOf("-D_CRT_SECURE_NO_WARNINGS", "-Dstrdup=_strdup", "--target=aarch64-windows", "-D_GLIBCXX_USE_CXX11_ABI=0")
-            outputDir(leveldbBuildDir.map { it.dir(dirPath("arm64")) }, "leveldb.$ext")
+            cxxFlags = flags
+            outputDir(leveldbBuildDir.map { it.dir(dirPath("arm64")) }, "libleveldb.$ext")
             sourcesDir = levelDbSourcesDir
         })
 
         add(tasks.register<BuildLeveldb>("${baseTaskName}X64") {
             onlyIf { OperatingSystem.current().isWindows }
-            windowsCmakeName = "MinGW Makefiles"
             debug = isDebug
             shared = isShared
-            cCompiler = "gcc.exe"
-            cxxCompiler = "g++.exe"
+            cCompiler = "x86_64-w64-mingw32-gcc"
+            cxxCompiler = "x86_64-w64-mingw32-g++"
             systemName = "Windows"
             systemProcessorName = "x86_64"
-            val basicFlags = listOf("-static-libgcc", "-static-libstdc++", "-D_GLIBCXX_USE_CXX11_ABI=0")
-            cxxFlags = when {
-                isShared -> basicFlags + "-lpthread"
-                else -> basicFlags
-            }
-            val ext = when {
-                isShared -> "dll"
-                else -> "a"
-            }
+            cxxFlags = flags
             outputDir(leveldbBuildDir.map { it.dir(dirPath("x64")) }, "libleveldb.$ext")
             sourcesDir = levelDbSourcesDir
         })
