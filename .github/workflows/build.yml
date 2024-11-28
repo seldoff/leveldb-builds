@@ -45,8 +45,8 @@ jobs:
       - run: apt-cache search gcc-8-arm-linux-gnueabihf
       - run: apt-cache policy gcc-8-arm-linux-gnueabihf
       - run: |
-          sudo apt-get install -t buster binutils-common=2.31.1-16 -y
-          sudo apt-get install -t buster binutils-arm-linux-gnueabihf -y
+          sudo apt-get install -t buster binutils-common=2.31.1-16 -y --allow-downgrades
+          sudo apt-get install -t buster binutils-arm-linux-gnueabihf -y --allow-downgrades
           sudo apt-get install -t buster gcc-8-arm-linux-gnueabihf g++-8 -arm-linux-gnueabihf -y
       - name: Install cross compilers
         run: sudo apt-get install -y -t buster gcc-8 g++-8 gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu -y
