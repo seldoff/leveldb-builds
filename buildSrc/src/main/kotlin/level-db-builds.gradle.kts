@@ -77,6 +77,7 @@ val winTasks =
             else -> "a"
         }
         add(tasks.register<BuildLeveldb>("${baseTaskName}Arm64") {
+            onlyIf { false } // cross-compilation is not supported
             debug = isDebug
             shared = isShared
             cCompiler = "aarch64-w64-mingw32-gcc"
