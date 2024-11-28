@@ -33,13 +33,20 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Install repositories
-        run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y && sudo apt-get update
-      - name: Install dependencies
+      - name: Add Debian repository
         run: |
-          sudo apt-get install gcc-8 g++-8 gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu cmake \
-          gcc-8-arm-linux-gnueabihf g++-8-arm-linux-gnueabihf -y
-
+          echo "deb http://ftp.debian.org/debian stable main" | sudo tee /etc/apt/sources.list.d/debian.list
+          sudo apt-get update
+      - name: Set Pinning Preferences
+        run: |
+          echo "Package: *" | sudo tee /etc/apt/preferences.d/debian
+          echo "Pin: release a=stable" | sudo tee -a /etc/apt/preferences.d/debian
+          echo "Pin-Priority: 50" | sudo tee -a /etc/apt/preferences.d/debian
+      - name: Install CMake from Ubuntu
+        run: sudo apt-get install -y cmake
+      - name: Install dependencies
+        run: sudo apt-get install -t stable -y gcc-8 g++-8 gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu \
+            gcc-8-arm-linux-gnueabihf g++-8-arm-linux-gnueabihf -y
       - run: chmod +x gradlew
       - uses: gradle/actions/setup-gradle@v3
       - run: ./gradlew linuxZip androidZip
