@@ -40,18 +40,12 @@ jobs:
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F8D2585B8783D481
       - name: Add Debian repository
         run: |
-          echo "deb http://ftp.debian.org/debian oldoldstable main" | sudo tee /etc/apt/sources.list.d/debian-devel.list
+          echo "deb http://ftp.debian.org/debian oldoldstable main" | sudo tee /etc/apt/sources.list.d/debian-oldoldstable.list
+          echo "deb http://ftp.debian.org/debian buster main" | sudo tee /etc/apt/sources.list.d/debian-buster.list
           sudo apt-get update
-      - name: Set Pinning Preferences
-        run: |
-          echo "Package: *" | sudo tee /etc/apt/preferences.d/debian
-          echo "Pin: release a=stable" | sudo tee -a /etc/apt/preferences.d/debian
-          echo "Pin-Priority: 50" | sudo tee -a /etc/apt/preferences.d/debian
-      - name: Install CMake from Ubuntu
-        run: sudo apt-get install -y cmake
       - name: Install dependencies
-        run: sudo apt-get install -t oldoldstable -y gcc-8 g++-8 gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu \
-            gcc-8-arm-linux-gnueabihf g++-8-arm-linux-gnueabihf -y
+        run: sudo apt-get install -y gcc-8 g++-8 gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu \
+            gcc-8-arm-linux-gnueabihf g++-8-arm-linux-gnueabihf cmake -y
       - run: chmod +x gradlew
       - uses: gradle/actions/setup-gradle@v3
       - run: ./gradlew linuxZip androidZip
