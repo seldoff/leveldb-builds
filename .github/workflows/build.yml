@@ -40,7 +40,7 @@ jobs:
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F8D2585B8783D481
       - name: Add Debian repository
         run: |
-          echo "deb http://ftp.debian.org/debian stable main" | sudo tee /etc/apt/sources.list.d/debian.list
+          echo "deb http://ftp.debian.org/debian devel main" | sudo tee /etc/apt/sources.list.d/debian.list
           sudo apt-get update
       - name: Set Pinning Preferences
         run: |
