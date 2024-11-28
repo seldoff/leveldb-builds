@@ -67,7 +67,11 @@ val levelDbSourcesDir = layout.projectDirectory.dir("leveldb")
 
 val winTasks =
     withMatrix("windows") { isDebug, isShared, baseTaskName, dirPath ->
-        val flags = listOf("-static-libgcc", "-static-libstdc++", "-lpthread")
+        val basicFlags = listOf("-static-libgcc", "-static-libstdc++")
+        val flags = when {
+            isShared -> basicFlags + "-lpthread"
+            else -> basicFlags
+        }
         val ext = when {
             isShared -> "dll"
             else -> "a"
@@ -76,8 +80,8 @@ val winTasks =
             onlyIf { false } // cross-compilation is not supported
             debug = isDebug
             shared = isShared
-            cCompiler = "aarch64-w64-mingw32-gcc"
-            cxxCompiler = "aarch64-w64-mingw32-g++"
+            cCompiler = "aarch64-w64-mingw32-gcc-posix"
+            cxxCompiler = "aarch64-w64-mingw32-g++-posix"
             systemName = "Windows"
             systemProcessorName = "ARM64"
             cxxFlags = flags
@@ -88,11 +92,10 @@ val winTasks =
         add(tasks.register<BuildLeveldb>("${baseTaskName}X64") {
             debug = isDebug
             shared = isShared
-            cCompiler = "x86_64-w64-mingw32-gcc"
-            cxxCompiler = "x86_64-w64-mingw32-g++"
+            cCompiler = "x86_64-w64-mingw32-gcc-posix"
+            cxxCompiler = "x86_64-w64-mingw32-g++-posix"
             systemName = "Windows"
             systemProcessorName = "x86_64"
-            cxxStandard = "11"
             cxxFlags = flags
             outputDir(leveldbBuildDir.map { it.dir(dirPath("x64")) }, "libleveldb.$ext")
             sourcesDir = levelDbSourcesDir
