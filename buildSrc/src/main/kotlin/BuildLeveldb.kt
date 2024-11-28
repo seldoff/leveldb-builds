@@ -153,7 +153,7 @@ open class BuildLeveldb @Inject constructor(
         val makeCommand = buildList {
             add("--build")
             add(outputDir.get().asFile.absolutePath)
-            add("-j${Runtime.getRuntime().availableProcessors()}")
+            addAll("-j", Runtime.getRuntime().availableProcessors().toString())
         }
         providers.exec {
             executable = cmakePath.get()
