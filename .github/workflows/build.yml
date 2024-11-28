@@ -44,13 +44,14 @@ jobs:
           sudo apt-get update
       - run: apt-cache search gcc-8-arm-linux-gnueabihf
       - run: apt-cache policy gcc-8-arm-linux-gnueabihf
-      - run: |
-          sudo apt-get install -t buster binutils-common=2.31.1-16 -y --allow-downgrades
-          sudo apt-get install -t buster binutils-arm-linux-gnueabihf -y --allow-downgrades
-          sudo apt-get install -t buster libc6-dev -y --allow-downgrades
+      - run: sudo apt-get install -t buster binutils-common=2.31.1-16 -y --allow-downgrades
+      - run: sudo apt-get install -t buster binutils-arm-linux-gnueabihf -y --allow-downgrades
+      - run: sudo apt-get install -t buster libc6-dev -y --allow-downgrades
+      - run: sudo apt-get install -t buster libgcc-8-dev -y --allow-downgrades
+      - run: sudo apt-get install -t buster gcc-8-arm-linux-gnueabihf -y --allow-downgrades
+      - run: sudo apt-get install -t buster g++-8-arm-linux-gnueabihf -y --allow-downgrades
       - name: Install cross compilers
-        run: sudo apt-get install -y -t buster gcc-8 g++-8 gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu \
-          gcc-8-arm-linux-gnueabihf g++-8-arm-linux-gnueabihf -y
+        run: sudo apt-get install -y -t buster gcc-8 g++-8 gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu -y
       - name: Install dependencies
         run: sudo apt-get install -y cmake
       - run: chmod +x gradlew
