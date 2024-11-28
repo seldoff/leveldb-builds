@@ -28,30 +28,13 @@ jobs:
 
   linux:
     name: Linux
+    container:
+      image: gcc:8
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Add public keys for Debian
-        run: |
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6ED0E7B82643E131
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F8D2585B8783D481
-      - name: Add Debian repository
-        run: |
-          echo "deb http://ftp.debian.org/debian buster main" | sudo tee /etc/apt/sources.list.d/debian-buster.list
-          sudo apt-get update
-      - run: apt-cache search gcc-8-arm-linux-gnueabihf
-      - run: apt-cache policy gcc-8-arm-linux-gnueabihf
-      - run: sudo apt-get install -t buster binutils-common=2.31.1-16 -y --allow-downgrades
-      - run: sudo apt-get install -t buster binutils-arm-linux-gnueabihf -y --allow-downgrades
-      - run: sudo apt-get install -t buster libc6-dev=2.28-10+deb10u1 libc6=2.28-10+deb10u1 libc-dev-bin=2.28-10+deb10u1 -y --allow-downgrades
-      - run: sudo apt-get install -t buster libgcc-8-dev -y --allow-downgrades
-      - run: sudo apt-get install -t buster gcc-8-arm-linux-gnueabihf -y --allow-downgrades
-      - run: sudo apt-get install -t buster g++-8-arm-linux-gnueabihf -y --allow-downgrades
-      - name: Install cross compilers
-        run: sudo apt-get install -y -t buster gcc-8 g++-8 gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu -y
       - name: Install dependencies
         run: sudo apt-get install -y cmake
       - run: chmod +x gradlew
