@@ -36,7 +36,7 @@ jobs:
         with:
           submodules: true
       - name: Install dependencies
-        run: sudo apt-get install -y cmake
+        run: apt-get install -y cmake
       - run: chmod +x gradlew
       - uses: gradle/actions/setup-gradle@v3
       - run: ./gradlew linuxZip androidZip
