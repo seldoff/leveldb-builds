@@ -143,8 +143,8 @@ val linuxTasks =
             onlyIf { OperatingSystem.current().isLinux }
             debug = isDebug
             shared = isShared
-            cCompiler = "gcc-9"
-            cxxCompiler = "g++-9"
+            cCompiler = "gcc-8"
+            cxxCompiler = "g++-8"
             cxxFlags = flags
             outputDir(leveldbBuildDir.map { it.dir(dirPath("x64")) }, "libleveldb.$ext")
             sourcesDir = levelDbSourcesDir
@@ -154,8 +154,8 @@ val linuxTasks =
             onlyIf { OperatingSystem.current().isLinux }
             debug = isDebug
             shared = isShared
-            cCompiler = "aarch64-linux-gnu-gcc-9"
-            cxxCompiler = "aarch64-linux-gnu-g++-9"
+            cCompiler = "aarch64-linux-gnu-gcc-8"
+            cxxCompiler = "aarch64-linux-gnu-g++-8"
             cxxFlags = flags
             outputDir(leveldbBuildDir.map { it.dir(dirPath("arm64")) }, "libleveldb.$ext")
             sourcesDir = levelDbSourcesDir
@@ -165,8 +165,8 @@ val linuxTasks =
             onlyIf { OperatingSystem.current().isLinux }
             debug = isDebug
             shared = isShared
-            cCompiler = "arm-linux-gnueabihf-gcc-9"
-            cxxCompiler = "arm-linux-gnueabihf-g++-9"
+            cCompiler = "arm-linux-gnueabihf-gcc-8"
+            cxxCompiler = "arm-linux-gnueabihf-g++-8"
             cxxFlags = flags + "-Wno-psabi"
             outputDir(leveldbBuildDir.map { it.dir(dirPath("armv7a")) }, "libleveldb.$ext")
             sourcesDir = levelDbSourcesDir
