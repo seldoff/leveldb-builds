@@ -13,11 +13,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Install dependencies with Chocolatey
-        run: |
-          choco install cmake --no-progress
-          choco install mingw --no-progress --version=8.1.0 -y
-          choco install llvm --no-progress -y
+      - run: choco install cmake --no-progress -y
+      - run: choco install mingw --no-progress --version=8.1.0 -y
+      - run: choco install llvm --no-progress -y
       - uses: gradle/actions/setup-gradle@v3
       - run: ./gradlew windowsArm64Zip
       - uses: actions/upload-artifact@v4
