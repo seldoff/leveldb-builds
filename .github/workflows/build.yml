@@ -36,6 +36,7 @@ jobs:
         with:
           submodules: true
       - run: apt-get update
+      - run: apt-get install -y cmake
       - run: apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
       - run: apt-get install -y gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
       - uses: actions/setup-java@v4
