@@ -33,6 +33,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
+      - name: Add public keys for Debian
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 6ED0E7B82643E131
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F8D2585B8783D481
       - name: Add Debian repository
         run: |
           echo "deb http://ftp.debian.org/debian stable main" | sudo tee /etc/apt/sources.list.d/debian.list
