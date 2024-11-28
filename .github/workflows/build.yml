@@ -42,9 +42,11 @@ jobs:
         run: |
           echo "deb http://ftp.debian.org/debian buster main" | sudo tee /etc/apt/sources.list.d/debian-buster.list
           sudo apt-get update
+      - name: Install cross compilers
+        run: sudo apt-get install -y -t buster gcc-8 g++-8 gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu \
+            gcc-8-arm-linux-gnueabihf g++-8-arm-linux-gnueabihf -y
       - name: Install dependencies
-        run: sudo apt-get install -y gcc-8 g++-8 gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu \
-            gcc-8-arm-linux-gnueabihf g++-8-arm-linux-gnueabihf cmake -y
+        run: sudo apt-get install -y cmake
       - run: chmod +x gradlew
       - uses: gradle/actions/setup-gradle@v3
       - run: ./gradlew linuxZip androidZip
