@@ -35,6 +35,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
+      - run: |
+          for compiler in $(compgen -c gcc g++ | grep -E 'gcc|g\+\+'); do
+            echo "$compiler:"
+            $compiler --version | head -n 1
+          done
       - uses: actions/setup-java@v4
         with:
           distribution: adopt
