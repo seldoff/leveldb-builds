@@ -50,7 +50,7 @@ jobs:
       - name: Install CMake from Ubuntu
         run: sudo apt-get install -y cmake
       - name: Install dependencies
-        run: sudo apt-get install -t stable -y gcc-8 g++-8 gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu \
+        run: sudo apt-get install -t oldoldstable -y gcc-8 g++-8 gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu \
             gcc-8-arm-linux-gnueabihf g++-8-arm-linux-gnueabihf -y
       - run: chmod +x gradlew
       - uses: gradle/actions/setup-gradle@v3
