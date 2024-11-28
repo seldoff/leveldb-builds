@@ -1,10 +1,10 @@
 @file:OptIn(ExperimentalPathApi::class)
 
 import kotlin.io.path.ExperimentalPathApi
-import org.gradle.internal.os.OperatingSystem
 import kotlin.io.path.Path
 import kotlin.io.path.name
 import kotlin.io.path.walk
+import org.gradle.internal.os.OperatingSystem
 
 plugins {
     `level-db-builds`
@@ -22,10 +22,9 @@ tasks {
     register<Zip>("testMergeZips") {
         val os = OperatingSystem.current()
         val zipTasks = when {
-            System.getenv("CI") == "true" -> listOf(linuxZip, androidZip, windowsZip, appleZip)
             os.isMacOsX -> listOf(appleZip, androidZip)
-            os.isLinux -> listOf(linuxZip, androidZip)
-            os.isWindows -> listOf(windowsZip, androidZip)
+            os.isLinux -> listOf(linuxZip, androidZip, windowsX64Zip, windowsArm64Zip)
+            os.isWindows -> listOf(windowsX64Zip, windowsArm64Zip, androidZip)
             else -> listOf(androidZip)
         }
 
