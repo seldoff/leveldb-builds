@@ -36,10 +36,10 @@ jobs:
         with:
           submodules: true
       - run: |
-          for compiler in $(compgen -c gcc g++ | grep -E 'gcc|g\+\+'); do
-            echo "$compiler:"
-            $compiler --version | head -n 1
+          for c in $(find /usr/bin /usr/local/bin -type f -name '*gcc*' -o -name '*g++*' 2>/dev/null | grep -E 'gcc|g\+\+'); do
+            echo "$c: $($c --version | head -n 1)"
           done
+
       - uses: actions/setup-java@v4
         with:
           distribution: adopt
