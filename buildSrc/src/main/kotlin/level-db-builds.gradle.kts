@@ -77,7 +77,6 @@ val winTasks =
             else -> "a"
         }
         add(tasks.register<BuildLeveldb>("${baseTaskName}Arm64") {
-            onlyIf { OperatingSystem.current().isWindows }
             debug = isDebug
             shared = isShared
             cCompiler = "aarch64-w64-mingw32-gcc"
@@ -90,7 +89,6 @@ val winTasks =
         })
 
         add(tasks.register<BuildLeveldb>("${baseTaskName}X64") {
-            onlyIf { OperatingSystem.current().isWindows }
             debug = isDebug
             shared = isShared
             cCompiler = "x86_64-w64-mingw32-gcc"
@@ -134,7 +132,6 @@ val linuxTasks =
             else -> "a"
         }
         add(tasks.register<BuildLeveldb>("${baseTaskName}X64") {
-            onlyIf { OperatingSystem.current().isLinux }
             debug = isDebug
             shared = isShared
             cCompiler = "gcc-8"
@@ -145,7 +142,6 @@ val linuxTasks =
         })
 
         add(tasks.register<BuildLeveldb>("${baseTaskName}Arm64") {
-            onlyIf { OperatingSystem.current().isLinux }
             debug = isDebug
             shared = isShared
             cCompiler = "aarch64-linux-gnu-gcc-8"
@@ -156,7 +152,6 @@ val linuxTasks =
         })
 
         add(tasks.register<BuildLeveldb>("${baseTaskName}Armv7a") {
-            onlyIf { OperatingSystem.current().isLinux }
             debug = isDebug
             shared = isShared
             cCompiler = "arm-linux-gnueabihf-gcc-8"
@@ -170,7 +165,6 @@ val linuxTasks =
 val buildLeveldbLinux by tasks.registering {
     group = "build"
     dependsOn(linuxTasks)
-    onlyIf { OperatingSystem.current().isLinux }
     linuxTasks.forEach { task ->
         outputs.file(task.flatMap { it.outputArtifact })
     }
@@ -318,7 +312,6 @@ val appleTasks = appleTargets.flatMap { (arch, sysName, sysRoot) ->
 val buildLeveldbApple by tasks.registering {
     group = "build"
     dependsOn(appleTasks)
-    onlyIf { OperatingSystem.current().isMacOsX }
     appleTasks.forEach { task ->
         outputs.file(task.flatMap { it.outputArtifact })
     }
