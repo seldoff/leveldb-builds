@@ -1,10 +1,7 @@
-import org.gradle.internal.extensions.stdlib.capitalized
-import org.gradle.internal.os.OperatingSystem
-import org.gradle.kotlin.dsl.getValue
-import org.gradle.kotlin.dsl.provideDelegate
-import org.gradle.kotlin.dsl.registering
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.relativeTo
+import org.gradle.internal.extensions.stdlib.capitalized
+import org.gradle.internal.os.OperatingSystem
 
 val leveldbBuildDir = layout.buildDirectory.dir("compilations/leveldb")
 
@@ -62,10 +59,46 @@ fun withMatrix(
     }
 }
 
-// Windows
 val levelDbSourcesDir = layout.projectDirectory.dir("leveldb")
 
-val winTasks =
+// Windows ARM64
+val winArm64Tasks =
+    withMatrix("windows") { isDebug, isShared, baseTaskName, dirPath ->
+        add(tasks.register<BuildLeveldb>("${baseTaskName}Arm64") {
+            onlyIf { OperatingSystem.current().isWindows }
+            windowsCmakeName = "MinGW Makefiles"
+            debug = isDebug
+            shared = isShared
+            cCompiler = "clang"
+            cxxCompiler = "clang++"
+            systemName = "Windows"
+            systemProcessorName = "ARM64"
+            val ext = when {
+                isShared -> "dll"
+                else -> "lib"
+            }
+            cxxFlags = listOf("-D_CRT_SECURE_NO_WARNINGS", "-Dstrdup=_strdup", "--target=aarch64-windows")
+            outputDir(leveldbBuildDir.map { it.dir(dirPath("arm64")) }, "leveldb.$ext")
+            sourcesDir = levelDbSourcesDir
+        })
+    }
+
+tasks.register<Zip>("windowsArm64Zip") {
+    group = "build"
+    dependsOn(winArm64Tasks)
+    winArm64Tasks.forEach { task ->
+        from(task.flatMap { it.outputArtifact }) {
+            eachFile {
+                path = file.toPath().relativeTo(leveldbBuildDirPath.get()).toString()
+            }
+        }
+    }
+    archiveBaseName = "leveldb-windows-arm64"
+    destinationDirectory = layout.buildDirectory.dir("archives")
+}
+
+// Windows x64
+val winX64Tasks =
     withMatrix("windows") { isDebug, isShared, baseTaskName, dirPath ->
         val basicFlags = listOf("-static-libgcc", "-static-libstdc++")
         val flags = when {
@@ -76,19 +109,6 @@ val winTasks =
             isShared -> "dll"
             else -> "a"
         }
-        add(tasks.register<BuildLeveldb>("${baseTaskName}Arm64") {
-            onlyIf { false } // cross-compilation is not supported
-            debug = isDebug
-            shared = isShared
-            cCompiler = "aarch64-w64-mingw32-gcc-posix"
-            cxxCompiler = "aarch64-w64-mingw32-g++-posix"
-            systemName = "Windows"
-            systemProcessorName = "ARM64"
-            cxxFlags = flags
-            outputDir(leveldbBuildDir.map { it.dir(dirPath("arm64")) }, "libleveldb.$ext")
-            sourcesDir = levelDbSourcesDir
-        })
-
         add(tasks.register<BuildLeveldb>("${baseTaskName}X64") {
             debug = isDebug
             shared = isShared
@@ -102,22 +122,17 @@ val winTasks =
         })
     }
 
-val buildLeveldbWindows by tasks.registering {
+tasks.register<Zip>("windowsX64Zip") {
     group = "build"
-    dependsOn(winTasks)
-    onlyIf { OperatingSystem.current().isWindows }
-    winTasks.forEach { task ->
-        outputs.file(task.flatMap { it.outputArtifact })
-    }
-}
-
-tasks.register<Zip>("windowsZip") {
-    from(buildLeveldbWindows) {
-        eachFile {
-            path = file.toPath().relativeTo(leveldbBuildDirPath.get()).toString()
+    dependsOn(winX64Tasks)
+    winX64Tasks.forEach { task ->
+        from(task.flatMap { it.outputArtifact }) {
+            eachFile {
+                path = file.toPath().relativeTo(leveldbBuildDirPath.get()).toString()
+            }
         }
     }
-    archiveBaseName = "leveldb-windows"
+    archiveBaseName = "leveldb-windows-x64"
     destinationDirectory = layout.buildDirectory.dir("archives")
 }
 
@@ -126,7 +141,7 @@ val linuxTasks =
     withMatrix("linux") { isDebug, isShared, baseTaskName, dirPath ->
         val flags = when {
             isShared -> listOf("-static-libgcc", "-static-libstdc++")
-            else -> listOf("-D_GLIBCXX_USE_CXX11_ABI=0")
+            else -> emptyList()
         }
         val ext = when {
             isShared -> "so"
@@ -163,19 +178,13 @@ val linuxTasks =
         })
     }
 
-val buildLeveldbLinux by tasks.registering {
-    group = "build"
-    dependsOn(linuxTasks)
-    linuxTasks.forEach { task ->
-        outputs.file(task.flatMap { it.outputArtifact })
-    }
-}
-
 tasks.register<Zip>("linuxZip") {
     dependsOn(linuxTasks)
-    from(buildLeveldbLinux) {
-        eachFile {
-            path = file.toPath().relativeTo(leveldbBuildDirPath.get()).toString()
+    linuxTasks.forEach { task ->
+        from(task.flatMap { it.outputArtifact }) {
+            eachFile {
+                path = file.toPath().relativeTo(leveldbBuildDirPath.get()).toString()
+            }
         }
     }
     archiveBaseName = "leveldb-linux"
@@ -242,19 +251,14 @@ val androidTasks =
         })
     }
 
-val buildLeveldbAndroid by tasks.registering {
+tasks.register<Zip>("androidZip") {
     group = "build"
     dependsOn(androidTasks)
     androidTasks.forEach { task ->
-        outputs.file(task.flatMap { it.outputArtifact })
-    }
-}
-
-tasks.register<Zip>("androidZip") {
-    dependsOn(buildLeveldbAndroid)
-    from(buildLeveldbAndroid) {
-        eachFile {
-            path = file.toPath().relativeTo(leveldbBuildDirPath.get()).toString()
+        from(task.flatMap { it.outputArtifact }) {
+            eachFile {
+                path = file.toPath().relativeTo(leveldbBuildDirPath.get()).toString()
+            }
         }
     }
     archiveBaseName = "leveldb-android"
@@ -310,18 +314,14 @@ val appleTasks = appleTargets.flatMap { (arch, sysName, sysRoot) ->
     }
 }
 
-val buildLeveldbApple by tasks.registering {
+tasks.register<Zip>("appleZip") {
     group = "build"
     dependsOn(appleTasks)
     appleTasks.forEach { task ->
-        outputs.file(task.flatMap { it.outputArtifact })
-    }
-}
-
-tasks.register<Zip>("appleZip") {
-    from(buildLeveldbApple) {
-        eachFile {
-            path = file.toPath().relativeTo(leveldbBuildDirPath.get()).toString()
+        from(task.flatMap { it.outputArtifact }) {
+            eachFile {
+                path = file.toPath().relativeTo(leveldbBuildDirPath.get()).toString()
+            }
         }
     }
     archiveBaseName = "leveldb-apple"
