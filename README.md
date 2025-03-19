@@ -17,3 +17,5 @@ Check the releases for the pre-built binaries.
 Libraries are built as dynamic libraries (`.dll`/`.lib`, `.so`, `.dylib`) and static libraries (`.lib`, `.a`) in both Debug and Release configurations.
 
 Binaries have been tested on some platforms, check the test results from [lamba92/kotlin-leveldb's CI](https://github.com/lamba92/kotlin-leveldb/actions/workflows/test.yml) for more information.
+
+Edit for CI
