@@ -18,4 +18,4 @@ Libraries are built as dynamic libraries (`.dll`/`.lib`, `.so`, `.dylib`) and st
 
 Binaries have been tested on some platforms, check the test results from [lamba92/kotlin-leveldb's CI](https://github.com/lamba92/kotlin-leveldb/actions/workflows/test.yml) for more information.
 
-Edit for CI
+Edit for CI 2
